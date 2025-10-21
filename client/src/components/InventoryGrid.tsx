@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Vehicle } from "../types";
 import InventoryCard from "./InventoryCard";
+import InventorySearch from "./InventorySearch";
 
 type Props = {
   endpoint?: string; // express route to hit, e.g. "/api/inventory"
@@ -14,6 +15,8 @@ export default function InventoryGrid({
   refreshIntervalMs = null,
 }: Props) {
   const [items, setItems] = useState<Vehicle[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>(search);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +54,32 @@ export default function InventoryGrid({
     };
   }, [endpoint, refreshIntervalMs]);
 
+  // debounce the search input to avoid filtering on every keystroke
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  const filteredItems = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((v) => {
+      const hay = [
+        String(v.year),
+        v.make,
+        v.model,
+        v.trim || "",
+        v.vin || "",
+        v.stk || "",
+        String(v.price || ""),
+        String(v.mileage || ""),
+      ]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [items, debouncedSearch]);
+
   if (loading) {
     return <div className={className}>Loading inventory…</div>;
   }
@@ -61,14 +90,27 @@ export default function InventoryGrid({
   if (items.length === 0) {
     return <div className={className}>No items found.</div>;
   }
+
   return (
     <div className={className}>
       <div className="container mx-auto px-4">
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {items.map((v) => (
-            <InventoryCard key={v.stk} vehicle={v} />
-          ))}
-        </div>
+        <InventorySearch
+          search={search}
+          onSearchChange={setSearch}
+          onClear={() => setSearch("")}
+          resultsCount={filteredItems.length}
+          totalCount={items.length}
+        />
+
+        {filteredItems.length === 0 ? (
+          <div className="text-gray-400">No matching items.</div>
+        ) : (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {filteredItems.map((v) => (
+              <InventoryCard key={v.stk || v.vin} vehicle={v} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
