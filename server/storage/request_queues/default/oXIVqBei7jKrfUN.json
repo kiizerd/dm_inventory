@@ -1,0 +1,9 @@
+{
+	"id": "oXIVqBei7jKrfUN",
+	"json": "{\"id\":\"oXIVqBei7jKrfUN\",\"url\":\"https://www.fourstarsford.com/searchused.aspx?pn=96\",\"loadedUrl\":\"https://www.fourstarsford.com/searchused.aspx?pn=96\",\"uniqueKey\":\"https://www.fourstarsford.com/searchused.aspx?pn=96\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-10-20T04:34:23.990Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.fourstarsford.com/searchused.aspx?pn=96",
+	"url": "https://www.fourstarsford.com/searchused.aspx?pn=96"
+}

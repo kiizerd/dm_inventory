@@ -1,0 +1,415 @@
+{
+  "usableSessionsCount": 2,
+  "retiredSessionsCount": 0,
+  "sessions": [
+    {
+      "id": "session_HCEu7Svw5Q",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-10-20T05:24:13.458Z",
+      "createdAt": "2025-10-20T04:34:13.458Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_ZJ8msacD4h",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "caconsentcookie",
+            "value": "{\"version\":\"1.0\",\"categories\":{\"functional\":true,\"general\":false,\"statistics\":true,\"targeting\":null},\"updatedAt\":\"2025-10-20T04:34:14.595Z\",\"expiresAt\":\"2026-10-20T04:34:14.595Z\",\"consentMethod\":\"OPT_IN\",\"hasInteractedWithBanner\":false,\"limitSensitivePersonalData\":null}",
+            "expires": "2026-10-20T04:34:14.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.467Z",
+            "lastAccessed": "2025-10-20T04:34:23.467Z"
+          },
+          {
+            "key": "DLRON_REFERRER_DATA",
+            "value": "{\"pn\":\"96\"}",
+            "expires": "2025-11-19T04:34:14.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.467Z",
+            "lastAccessed": "2025-10-20T04:34:23.467Z"
+          },
+          {
+            "key": "DLRON_URL_TRACKER",
+            "value": "entryUrl%3Dhttps%3A%2F%2Fwww.fourstarsford.com%2Fsearchused.aspx%3Fpn%3D96%3F%7Creferrer%3D",
+            "expires": "2025-11-19T04:34:14.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.467Z",
+            "lastAccessed": "2025-10-20T04:34:23.467Z"
+          },
+          {
+            "key": "DLRON_GCLID",
+            "value": "null",
+            "expires": "2026-01-18T04:34:14.981Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.467Z",
+            "lastAccessed": "2025-10-20T04:34:23.467Z"
+          },
+          {
+            "key": "at_check",
+            "value": "true",
+            "expires": "2025-10-20T05:24:23.465Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.467Z",
+            "lastAccessed": "2025-10-20T04:34:23.467Z"
+          },
+          {
+            "key": "AMCVS_EFD95E09512D2A8E0A490D4D%40AdobeOrg",
+            "value": "1",
+            "expires": "2025-10-20T05:24:23.466Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.471Z",
+            "lastAccessed": "2025-10-20T04:34:23.471Z"
+          },
+          {
+            "key": "gt_uid",
+            "value": "94c48f19-4aea-41ba-9ca7-6fbe1bb1a6ac",
+            "expires": "2026-10-20T04:34:17.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.471Z",
+            "lastAccessed": "2025-10-20T04:34:23.471Z"
+          },
+          {
+            "key": "_ga_H6RD8MWH0L",
+            "value": "GS2.1.s1760934857$o1$g0$t1760934857$j60$l0$h0",
+            "expires": "2026-11-24T04:34:17.245Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.471Z",
+            "lastAccessed": "2025-10-20T04:34:23.471Z"
+          },
+          {
+            "key": "_ga_VY9NSGQ4WL",
+            "value": "GS2.1.s1760934857$o1$g1$t1760934857$j60$l0$h0",
+            "expires": "2026-11-24T04:34:17.433Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.471Z",
+            "lastAccessed": "2025-10-20T04:34:23.471Z"
+          },
+          {
+            "key": "rda_uu",
+            "value": "rduay4uqehsq0ya6bs994qhv3",
+            "expires": "2026-10-01T05:00:00.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "43557_cnpc_p",
+            "value": "1.0",
+            "expires": "2025-11-30T20:34:17.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "mbox",
+            "value": "session#3680170a351f4523904a03ed80ba8810#1760936718|PC#3680170a351f4523904a03ed80ba8810.34_0#1824179658",
+            "expires": "2026-11-24T04:34:17.933Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "AMCV_EFD95E09512D2A8E0A490D4D%40AdobeOrg",
+            "value": "179643557%7CMCIDTS%7C20382%7CMCMID%7C01932344461851296820096369680252059187%7CMCAAMLH-1761539657%7C7%7CMCAAMB-1761539657%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1760942057s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C5.5.0",
+            "expires": "2026-11-24T04:34:17.938Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_ga_YEGK6SLV2R",
+            "value": "GS2.1.s1760934858$o1$g1$t1760934858$j60$l0$h0",
+            "expires": "2026-11-24T04:34:18.054Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_ga_GXCRGYXF6N",
+            "value": "GS2.1.s1760934858$o1$g0$t1760934858$j60$l0$h0",
+            "expires": "2026-11-24T04:34:18.207Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_ga_418QZC0KWZ",
+            "value": "GS2.1.s1760934858$o1$g1$t1760934858$j60$l0$h0",
+            "expires": "2026-11-24T04:34:18.267Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "kndctr_EFD95E09512D2A8E0A490D4D_AdobeOrg_identity",
+            "value": "CiYwMTkzMjM0NDQ2MTg1MTI5NjgyMDA5NjM2OTY4MDI1MjA1OTE4N1IQCIGPlv-fMxgBKgNWQTYwA6ABho-W_58zsAHoDfABgY-W_58z",
+            "expires": "2026-11-19T04:34:18.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "kndctr_EFD95E09512D2A8E0A490D4D_AdobeOrg_cluster",
+            "value": "va6",
+            "expires": "2025-10-20T05:04:18.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "t3website",
+            "value": "%3Ccampaigndetail%3E%3Cpacode%3E03195%3C%2Fpacode%3E%3Ccookieguid%3ESH-0d1c6144-9b9e-af21-5d26-588634dfe884%3C%2Fcookieguid%3E%3Cfdguid%3E%3C%2Ffdguid%3E%3Cmcmid%3E%3C%2Fmcmid%3E%3Ccampaignid%3E%3C%2Fcampaignid%3E%3Cchannel%3E%3C%2Fchannel%3E%3Csiteid%3E%3C%2Fsiteid%3E%3Cplacementid%3E%3C%2Fplacementid%3E%3Ccreativeid%3E%3C%2Fcreativeid%3E%3Cadid%3E%3C%2Fadid%3E%3Ckeywordid%3E%3C%2Fkeywordid%3E%3Cemailid%3E%3C%2Femailid%3E%3Cgclid%3E%3C%2Fgclid%3E%3Cdstargetid%3E%3C%2Fdstargetid%3E%3Cs_vi%3Eundefined%3C%2Fs_vi%3E%3Cadobeid%3E01932344461851296820096369680252059187%3C%2Fadobeid%3E%3Cfps_id%3E94c48f19-4aea-41ba-9ca7-6fbe1bb1a6ac%3C%2Ffps_id%3E%3Cutm_source%3E%3C%2Futm_source%3E%3Cutm_medium%3E%3C%2Futm_medium%3E%3Cintcmp%3E%3C%2Fintcmp%3E%3Ctimestamp%3E2025-10-20T04%3A34%3A18.721Z%3C%2Ftimestamp%3E%3Ccampaignclassification%3E%3C%2Fcampaignclassification%3E%3Cmbtargetid%3E%3C%2Fmbtargetid%3E%3Cadsetid%3E%3C%2Fadsetid%3E%3C%2Fcampaigndetail%3E",
+            "expires": "2026-11-24T04:34:18.722Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "winsight",
+            "value": "true",
+            "expires": "2025-10-20T05:46:18.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_ga_GY7P36ESTT",
+            "value": "GS2.1.s1760934858$o1$g0$t1760934858$j60$l0$h0",
+            "expires": "2026-11-24T04:34:18.791Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "FDPixelCookie01",
+            "value": "fbpixelidfflood11402802eof",
+            "expires": "2026-04-18T04:34:19.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "rd_user",
+            "value": "%7B%22distinct_id%22%3A%22rduay4uqehsq0ya6bs994qhv3%22%2C%22domain%22%3A%22express.fourstarsford.com%22%2C%22First+Visit%22%3Atrue%7D",
+            "expires": "2026-10-20T04:34:19.560Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "43557_cn_vid",
+            "value": "7448d03d-2152-41c1-b6e6-d9abcfdc2854",
+            "expires": "2026-10-20T04:34:19.000Z",
+            "domain": "www.fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "AMP_MKTG_1455035c9f",
+            "value": "JTdCJTdE",
+            "expires": "2026-10-20T04:34:19.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "AMP_1455035c9f",
+            "value": "JTdCJTIyZGV2aWNlSWQlMjIlM0ElMjI0MThlOGFjNS02NDI3LTQzYzEtYjk4OC0xM2UwM2E5YmUyMGUlMjIlMkMlMjJzZXNzaW9uSWQlMjIlM0ExNzYwOTM0ODU5NzY1JTJDJTIyb3B0T3V0JTIyJTNBZmFsc2UlMkMlMjJsYXN0RXZlbnRUaW1lJTIyJTNBMTc2MDkzNDg1OTg0NCUyQyUyMmxhc3RFdmVudElkJTIyJTNBMiUyQyUyMnBhZ2VDb3VudGVyJTIyJTNBMCU3RA==",
+            "expires": "2026-10-20T04:34:19.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.2.1965044486.1760934857",
+            "expires": "2026-11-24T04:34:20.752Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "_gid",
+            "value": "GA1.2.1962788279.1760934861",
+            "expires": "2025-10-21T04:34:20.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "cf_clearance",
+            "value": "M51Zl.zx7Up1pucfjjNF4zXBWwCtNLGtf_IOYS3C6rs-1760934861-1.2.1.1-wfbL2ZwStYLkEXLL2fTjk0FDvteliIlIYm0wb.EyWaxKMcmaVqSzSJsLw.C5xXp8t9Vkh8NYftLxhng9D_0_xnRg.KLgscdPQ9fAJgDY8.OrEVRIKX2oVgMnM3hAhgtoV6bUrJusPaa6k07p7Uy3CI4bJLfuXcUtWfT9ZiGZqtmd3ADLTAsxrpa6jlRI3ikNNjM5ypLD_wPNw9hvso4M8jgLr_a2nnjM6znN812q2JE",
+            "expires": "2026-10-20T04:34:22.708Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "s_p_s_prop8",
+            "value": "typed-bookmarked",
+            "expires": "2025-10-20T05:24:23.466Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "v_starting",
+            "value": "nfp",
+            "expires": "2025-10-20T05:04:23.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "fv_v54",
+            "value": "v54|ui:rad:pc",
+            "expires": "2026-10-20T04:34:23.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "fv_v1_v10",
+            "value": "v1|03195,v3|52A,v8|typed-bookmarked",
+            "expires": "2026-10-20T04:34:23.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "fv_v31_v40",
+            "value": "v40|D=v8",
+            "expires": "2026-10-20T04:34:23.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "fv_entpg",
+            "value": "entpg|dc:used:si:vls:no results:contact",
+            "expires": "2026-10-20T04:34:23.000Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          },
+          {
+            "key": "s_cc",
+            "value": "true",
+            "expires": "2025-10-20T05:24:23.466Z",
+            "domain": "fourstarsford.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-10-20T04:34:23.472Z",
+            "lastAccessed": "2025-10-20T04:34:23.472Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-10-20T05:24:13.460Z",
+      "createdAt": "2025-10-20T04:34:13.460Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    }
+  ]
+}
