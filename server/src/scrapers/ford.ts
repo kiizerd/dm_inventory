@@ -1,19 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
-
-export interface Vehicle {
-  year: number;
-  make: string;
-  model: string;
-  trim: string;
-  price: string;
-  mileage: string;
-  vin: string;
-  stk: string;
-  link: string;
-  image: string | undefined;
-}
+import type { Vehicle } from "src/types";
 
 // This should work for all FourStars locations
 export async function scrapeFord(): Promise<Vehicle[]> {

@@ -7,3 +7,16 @@ export interface InventoryItem {
   source: string;
   url?: string | null;
 }
+
+export interface Vehicle {
+  year: number;
+  make: string;
+  model: string;
+  trim: string;
+  price: string;
+  mileage: string;
+  vin: string;
+  stk: string;
+  link: string;
+  image: string | undefined;
+}
