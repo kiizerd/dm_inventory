@@ -1,4 +1,4 @@
-import type { Vehicle } from "../types";
+import type { Vehicle } from '../../types';
 
 export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}`.trim();
@@ -28,8 +28,12 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
           <span className="text-sm text-gray-300">{vehicle.mileage}</span>
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
-          <span className="truncate">VIN: <span className="text-gray-300">{vehicle.vin || '—'}</span></span>
-          <span className="truncate">STK: <span className="text-gray-300">{vehicle.stk || '—'}</span></span>
+          <span className="truncate">
+            VIN: <span className="text-gray-300">{vehicle.vin || '—'}</span>
+          </span>
+          <span className="truncate">
+            STK: <span className="text-gray-300">{vehicle.stk || '—'}</span>
+          </span>
         </div>
         <div className="mt-3 flex items-center justify-between">
           <a

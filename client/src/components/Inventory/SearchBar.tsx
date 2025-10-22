@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent } from 'react';
 
 type Props = {
   search: string;
@@ -10,20 +10,22 @@ type Props = {
   className?: string;
 };
 
-export default function InventorySearch({
+export default function SearchBar({
   search,
   onSearchChange,
   onClear,
   resultsCount,
   totalCount,
-  placeholder = "Search by year, make, model, VIN, STK, price...",
+  placeholder = 'Search by year, make, model, VIN, STK, price...',
   className,
 }: Props) {
   return (
     <div className={className}>
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="w-full sm:w-auto">
-          <label htmlFor="inventory-search" className="sr-only">Search inventory</label>
+          <label htmlFor="inventory-search" className="sr-only">
+            Search inventory
+          </label>
           <div className="relative">
             <input
               id="inventory-search"
@@ -37,18 +39,18 @@ export default function InventorySearch({
               <button
                 onClick={onClear}
                 aria-label="Clear search"
-                className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 px-2"
+                className="absolute text-xs right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 px-2 py-px"
                 type="button"
               >
-                ×
+                {/* × */}X
               </button>
             )}
           </div>
         </div>
         <div className="text-sm text-gray-300">
-          {typeof resultsCount === "number" && typeof totalCount === "number"
+          {typeof resultsCount === 'number' && typeof totalCount === 'number'
             ? `${resultsCount} / ${totalCount} results`
-            : ""}
+            : ''}
         </div>
       </div>
     </div>

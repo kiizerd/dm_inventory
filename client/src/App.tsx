@@ -1,13 +1,8 @@
-import InventoryGrid from './components/InventoryGrid'
-import './App.css'
+import Inventory from './components/Inventory/Inventory.tsx';
+import './App.css';
 
 function App() {
-
-  return (
-    <>
-      <InventoryGrid/>
-    </>
-  )
+  return <Inventory />;
 }
 
-export default App
+export default App;
