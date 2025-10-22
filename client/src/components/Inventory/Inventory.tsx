@@ -7,10 +7,12 @@ import type { Vehicle } from '../../types.ts';
 
 export default function Inventory() {
   const [items, setItems] = useState<Vehicle[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>(search);
+  // Note: Filter state is now owned by FilterBox. `filteredItems` contains items filtered by those controls.
 
   // Get inventory
   useEffect(() => {
@@ -40,10 +42,12 @@ export default function Inventory() {
     return () => clearTimeout(id);
   }, [search]);
 
-  const filteredItems = useMemo(() => {
+  // apply search on top of the list produced by FilterBox
+  const searchedItems = useMemo(() => {
     const q = debouncedSearch.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((v) => {
+    if (!q) return filteredItems.length ? filteredItems : items;
+    const source = filteredItems.length ? filteredItems : items;
+    return source.filter((v) => {
       const hay = [
         String(v.year),
         v.make,
@@ -58,7 +62,7 @@ export default function Inventory() {
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [items, debouncedSearch]);
+  }, [items, filteredItems, debouncedSearch]);
 
   return (
     <div className="min-h-screen w-screen flex items-start justify-center">
@@ -76,12 +80,12 @@ export default function Inventory() {
 
       <main className="flex w-screen mx-auto p-20">
         <aside>
-          <FilterBox />
+          <FilterBox items={items} onFiltered={setFilteredItems} />
         </aside>
         <div className="container mx-auto px-4">
           {loading ? <div>Loading inventory…</div> : ''}
           {error ? <div>Error: {error}</div> : ''}
-          <InventoryGrid items={filteredItems} />
+          <InventoryGrid items={searchedItems} />
         </div>
       </main>
     </div>
