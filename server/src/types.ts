@@ -9,7 +9,7 @@ export interface InventoryItem {
 }
 
 export interface Vehicle {
-  year: number;
+  year: string;
   make: string;
   model: string;
   trim: string;
