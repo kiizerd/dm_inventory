@@ -17,7 +17,7 @@ const mockData = [
 ];
 router.get('/', async (_req, res) => {
     // Later we'll call real scrapers and merge results
-    const fordData = (0, ford_1.scrapeFord)();
+    const fordData = await (0, ford_1.scrapeFord)();
     console.log('Getting Inventory');
     res.json(fordData);
 });
