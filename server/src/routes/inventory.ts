@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import { closeBrowser, getBrowser } from '../browserManager';
 import { scrapeFourStars } from '../scrapers/fourStars';
+import { inventoryCache } from '../cache/inventoryCache';
 
 const router = Router();
 
 router.get('/', async (_req, res) => {
   console.log(' #===--- Getting Inventory ---===# ');
   try {
+    const cachedData = inventoryCache.get();
+    if (cachedData) {
+      res.json(cachedData);
+      return;
+    }
+
     const browser = await getBrowser();
 
     // Do everything sequentially for now.
@@ -35,9 +42,12 @@ router.get('/', async (_req, res) => {
     //   timestamp: new Date().toISOString(),
     // });
 
-    res.json([ford, nissan, toyota, dodge].flat());
+    const result = [ford, nissan, toyota, dodge].flat();
+    inventoryCache.set(result);
+
+    res.json(result);
   } catch (error) {
-    console.error('Browser error:', error);
+    console.error('Browser error: ', error);
     res.status(500).json({
       error: 'Failure during browser handling',
       message: error instanceof Error ? error.message : 'Unknown error',
