@@ -1,3 +1,5 @@
 # Ignore node_modules in two specific directories
 */node_modules/
 node_modules
+
+server/dist
