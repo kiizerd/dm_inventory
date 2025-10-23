@@ -5,7 +5,7 @@ import SearchBar from './SearchBar.tsx';
 import FilterBox from './FilterBox.tsx';
 import type { Vehicle } from '../../types.ts';
 
-export default function Inventory() {
+export default function Inventory({ endpoint = '/api/inventory' }) {
   const [items, setItems] = useState<Vehicle[]>([]);
   const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -16,25 +16,34 @@ export default function Inventory() {
 
   // Get inventory
   useEffect(() => {
+    let aborted = false;
+    const controller = new AbortController();
+
     const load = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/inventory');
+        const res = await fetch(endpoint, { signal: controller.signal });
         if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
         const data = (await res.json()) as Vehicle[] | { items: Vehicle[] };
         const resolved = Array.isArray(data) ? data : 'items' in data ? data.items : [];
-        setItems(resolved);
+        if (!aborted) setItems(resolved);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        setError(err.name === 'AbortError' ? 'Cancelled' : err.message || 'Unknown error');
+        if (!aborted)
+          setError(err.name === 'AbortError' ? 'Cancelled' : err.message || 'Unknown error');
       } finally {
-        setLoading(false);
+        if (!aborted) setLoading(false);
       }
     };
 
     load();
-  }, []);
+
+    return () => {
+      aborted = true;
+      controller.abort();
+    };
+  }, [endpoint]);
 
   // debounce the search input to avoid filtering on every keystroke
   useEffect(() => {

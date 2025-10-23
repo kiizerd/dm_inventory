@@ -1,13 +1,16 @@
+// This function no longer used.
+// Keeping for reference.
+
 import { promises as fs } from 'fs';
 import path from 'path';
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import type { Vehicle } from 'src/types';
 
 // This should work for all FourStars locations
-export async function scrapeFord(): Promise<Vehicle[]> {
+export async function scrapeFord(browser: Browser): Promise<Vehicle[]> {
+  console.log('Scraping FourStars');
   const targetUrl = 'https://www.fourstarsford.com/searchused.aspx?pn=96';
 
-  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.setRequestInterception(true);
@@ -51,24 +54,26 @@ export async function scrapeFord(): Promise<Vehicle[]> {
     const vehicleCard = await page.$(elementId);
     const overview = await vehicleCard?.$('.vehicle-overview');
     const vehicleUrl = await vehicleCard?.$eval('a', (el) => el.href);
-    const imageUrl = await vehicleCard?.$eval('img', (el) => {
-      return 'https://www.fourstarsford.com' + el.getAttribute('src');
-    });
+    const imageUrl =
+      (await vehicleCard?.$eval('img', (el) => {
+        return 'https://www.fourstarsford.com' + el.getAttribute('src');
+      })) ?? 'Null';
 
-    const price = await vehicleCard?.$eval(
-      '.vehiclePricingHighlightAmount',
-      (el) => el.textContent,
-    );
+    const price =
+      (await vehicleCard?.$eval('.vehiclePricingHighlightAmount', (el) => el.textContent)) ??
+      'Null';
 
-    const year = await overview?.$eval('.vehicle-title__year', (el) => el.textContent);
-    const makeModel = await overview?.$eval('.vehicle-title__make-model', (el) => el.textContent);
-    const make = makeModel.split(' ')[1];
-    const model = makeModel.split(' ').slice(2).join(' ');
-    const trim = await overview?.$eval('.vehicle-title__trim', (el) => el.textContent);
-    const vin = await overview?.$eval('.vehicle-identifiers__value', (el) => el.textContent);
-    const mileage = await overview?.$eval('.vehicle-mileage', (el) => el.textContent);
+    const year = (await overview?.$eval('.vehicle-title__year', (el) => el.textContent)) ?? '0';
+    const makeModel =
+      (await overview?.$eval('.vehicle-title__make-model', (el) => el.textContent)) ?? '';
+    const make = makeModel.split(' ')[1] ?? 'Null';
+    const model = makeModel.split(' ').slice(2).join(' ') ?? 'Null';
+    const trim = (await overview?.$eval('.vehicle-title__trim', (el) => el.textContent)) ?? 'Null';
+    const vin =
+      (await overview?.$eval('.vehicle-identifiers__value', (el) => el.textContent)) ?? 'Null';
+    const mileage = (await overview?.$eval('.vehicle-mileage', (el) => el.textContent)) ?? 'Null';
     const stockNumSelector = '.vehicle-identifiers__stock > .vehicle-identifiers__value';
-    const stockNum = await overview?.$eval(stockNumSelector, (el) => el.textContent);
+    const stockNum = (await overview?.$eval(stockNumSelector, (el) => el.textContent)) ?? 'Null';
 
     const vehicle: Vehicle = {
       year,
@@ -79,7 +84,7 @@ export async function scrapeFord(): Promise<Vehicle[]> {
       mileage,
       stk: stockNum,
       price,
-      link: vehicleUrl,
+      link: vehicleUrl ?? '',
       image: imageUrl,
     };
 
@@ -108,8 +113,6 @@ export async function scrapeFord(): Promise<Vehicle[]> {
       console.error('Failed to write inventory HTML:', err);
     }
   }
-
-  await browser.close();
 
   return vehicles;
 }

@@ -1,29 +1,50 @@
 import { Router } from 'express';
-import { InventoryItem } from '../types';
-import { scrapeFord } from '../scrapers/ford';
+import { closeBrowser, getBrowser } from '../browserManager';
+import { scrapeFourStars } from '../scrapers/fourStars';
 
 const router = Router();
 
-// TEMP MOCK - will replace with real scraper
-const mockData: InventoryItem[] = [
-  {
-    id: '123',
-    title: '2021 Example Truck',
-    price: 35000,
-    inStock: true,
-    source: 'Mock Dealer',
-    imageUrl: null,
-    url: null
-  }
-];
-
-
-
 router.get('/', async (_req, res) => {
-  // Later we'll call real scrapers and merge results
-  const fordData = await scrapeFord()
-  console.log('Getting Inventory')
-  res.json(fordData);
+  console.log(' #===--- Getting Inventory ---===# ');
+  try {
+    const browser = await getBrowser();
+
+    // Do everything sequentially for now.
+    // Work out concurrency later
+    const ford = await scrapeFourStars(browser, 'ford');
+    const nissan = await scrapeFourStars(browser, 'nissan');
+    const toyota = await scrapeFourStars(browser, 'toyota');
+    const dodge = await scrapeFourStars(browser, 'dodge');
+
+    // Concurrent method - last results overwrote earlier ones
+    // -------------------------------------------------------|
+    // const results = await Promise.allSettled([
+    //   scrapeFourStars(browser, 'ford'),
+    //   scrapeFourStars(browser, 'nissan'),
+    // ]);
+
+    // const allData = results
+    //   .filter((result) => result.status === 'fulfilled')
+    //   .flatMap((result) => result.value);
+    // -------------------------------------------------------|
+
+    // Improve response with metadata
+    // res.json({
+    //   inventory: allData,
+    //   count: allData.length,
+    //   timestamp: new Date().toISOString(),
+    // });
+
+    res.json([ford, nissan, toyota, dodge].flat());
+  } catch (error) {
+    console.error('Browser error:', error);
+    res.status(500).json({
+      error: 'Failure during browser handling',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+
+  await closeBrowser();
 });
 
 export default router;
