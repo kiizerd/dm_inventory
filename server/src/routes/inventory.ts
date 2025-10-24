@@ -3,6 +3,12 @@ import { closeBrowser, getBrowser } from '../browserManager';
 import { scrapeFourStars } from '../scrapers/fourStars';
 import { inventoryCache } from '../cache/inventoryCache';
 
+// TODO: Improve scraping concurrency and resilience
+// - Consider running scrapers concurrently with Promise.allSettled
+// - Merge results deterministically (preserve order or dedupe)
+// - Add retry wrapper and timeouts for flaky pages
+// When starting work: create branch `feature/scraper-concurrency`
+
 const router = Router();
 
 router.get('/', async (_req, res) => {
@@ -10,7 +16,12 @@ router.get('/', async (_req, res) => {
   try {
     const cachedData = inventoryCache.get();
     if (cachedData) {
-      res.json(cachedData);
+      res.json({
+        inventory: cachedData,
+        count: cachedData.length,
+        cached: true,
+        timestamp: new Date().toISOString(),
+      });
       return;
     }
 
@@ -35,17 +46,22 @@ router.get('/', async (_req, res) => {
     //   .flatMap((result) => result.value);
     // -------------------------------------------------------|
 
-    // Improve response with metadata
-    // res.json({
-    //   inventory: allData,
-    //   count: allData.length,
-    //   timestamp: new Date().toISOString(),
-    // });
+    const inventory = [ford, nissan, toyota, dodge].flat().sort((a, b) => {
+      if (!a.price.includes('$')) return 1;
+      if (!b.price.includes('$')) return -1;
 
-    const result = [ford, nissan, toyota, dodge].flat();
-    inventoryCache.set(result);
+      const price_a = Number(a.price.replace(/\D+/g, ''));
+      const price_b = Number(b.price.replace(/\D+/g, ''));
+      return price_a - price_b;
+    });
+    inventoryCache.set(inventory);
 
-    res.json(result);
+    res.json({
+      inventory,
+      count: inventory.length,
+      cached: false,
+      timestamp: new Date().toISOString(),
+    });
   } catch (error) {
     console.error('Browser error: ', error);
     res.status(500).json({

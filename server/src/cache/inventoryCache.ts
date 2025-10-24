@@ -8,7 +8,7 @@ interface CacheEntry {
 
 class InventoryCache {
   private cache: CacheEntry | null = null;
-  private readonly TTL: number = 5 * 60 * 1000; // 5 minutes in milliseconds
+  private readonly TTL: number = 30 * 60 * 1000; // 30 minutes in milliseconds
 
   set(data: Vehicle[]): void {
     this.cache = {
