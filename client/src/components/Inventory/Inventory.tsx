@@ -25,8 +25,16 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
       try {
         const res = await fetch(endpoint, { signal: controller.signal });
         if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-        const data = (await res.json()) as Vehicle[] | { items: Vehicle[] };
-        const resolved = Array.isArray(data) ? data : 'items' in data ? data.items : [];
+        // backend now returns { inventory: Vehicle[], count, timestamp, cached }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data: any = await res.json();
+        let resolved: Vehicle[] = [];
+        if (data && Array.isArray(data.inventory)) {
+          resolved = data.inventory;
+        } else {
+          resolved = [];
+        }
+
         if (!aborted) setItems(resolved);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
@@ -87,11 +95,11 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
         </div>
       </header>
 
-      <main className="flex w-screen mx-auto p-20">
+      <main className="flex flex-col md:flex-row w-screen mx-auto pt-16 md:pt-20">
         <aside>
           <FilterBox items={items} onFiltered={setFilteredItems} />
         </aside>
-        <div className="container mx-auto px-4">
+        <div>
           {loading ? <div>Loading inventory…</div> : ''}
           {error ? <div>Error: {error}</div> : ''}
           <InventoryGrid items={searchedItems} />
