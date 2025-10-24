@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Vehicle } from '../../types';
-import 'react-range-slider-input/dist/style.css';
-import './FilterBox.css';
 import { ActionIcon, RangeSlider, Text } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
+import type { Vehicle } from '../../types';
 
 type Props = {
   items: Vehicle[];
