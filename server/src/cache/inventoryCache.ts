@@ -1,4 +1,5 @@
 // cache/inventoryCache.ts
+import { scrapingService } from '../services/scraper';
 import { Vehicle } from '../types';
 
 interface CacheEntry {
@@ -38,6 +39,27 @@ class InventoryCache {
     const age = Date.now() - this.cache.timestamp;
     return age > this.TTL;
   }
+
+  async refresh(): Promise<void> {
+    try {
+      const inventory = await scrapingService.run();
+      this.set(inventory);
+    } catch (error) {
+      console.error('Cache Refresh Error: ', error);
+    }
+  }
 }
 
 export const inventoryCache = new InventoryCache();
+
+const timeoutRefresh = async () => {
+  console.log('Checking if cache is stale....');
+  const stale = inventoryCache.isStale();
+
+  if (stale) {
+    console.log('Cache stale - Refreshing');
+    inventoryCache.refresh();
+  }
+};
+
+setInterval(timeoutRefresh, 120 * 1000);
