@@ -3,11 +3,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import inventoryRoute from './routes/inventory';
+import { inventoryCache } from './cache/inventoryCache';
 
 const app = express();
 
-// Security headers
-app.use(helmet());
+app.use(
+  express.json(),
+  helmet(),
+  cors({
+    origin: process.env.CLIENT_ORIGIN || '*',
+  }),
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -16,17 +22,24 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || '*',
-  }),
-);
-
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
 app.use('/api/inventory', inventoryRoute);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const startServer = async () => {
+  try {
+    console.log('Starting server...');
+
+    await inventoryCache.refresh();
+
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (error) {
+    console.error('Error starting server: ', error);
+    process.exit(1);
+  }
+};
+
+startServer();
