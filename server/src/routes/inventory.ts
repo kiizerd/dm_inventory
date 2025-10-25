@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { closeBrowser, getBrowser } from '../browserManager';
-import { scrapeFourStars } from '../scrapers/fourStars';
+import { closeBrowser } from '../browserManager';
 import { inventoryCache } from '../cache/inventoryCache';
+import { scrapingService } from '../services/scraper';
 
 // TODO: Improve scraping concurrency and resilience
 // - Consider running scrapers concurrently with Promise.allSettled
@@ -25,35 +25,8 @@ router.get('/', async (_req, res) => {
       return;
     }
 
-    const browser = await getBrowser();
+    const inventory = await scrapingService.run();
 
-    // Do everything sequentially for now.
-    // Work out concurrency later
-    const ford = await scrapeFourStars(browser, 'ford');
-    const nissan = await scrapeFourStars(browser, 'nissan');
-    const toyota = await scrapeFourStars(browser, 'toyota');
-    const dodge = await scrapeFourStars(browser, 'dodge');
-
-    // Concurrent method - last results overwrote earlier ones
-    // -------------------------------------------------------|
-    // const results = await Promise.allSettled([
-    //   scrapeFourStars(browser, 'ford'),
-    //   scrapeFourStars(browser, 'nissan'),
-    // ]);
-
-    // const allData = results
-    //   .filter((result) => result.status === 'fulfilled')
-    //   .flatMap((result) => result.value);
-    // -------------------------------------------------------|
-
-    const inventory = [ford, nissan, toyota, dodge].flat().sort((a, b) => {
-      if (!a.price.includes('$')) return 1;
-      if (!b.price.includes('$')) return -1;
-
-      const price_a = Number(a.price.replace(/\D+/g, ''));
-      const price_b = Number(b.price.replace(/\D+/g, ''));
-      return price_a - price_b;
-    });
     inventoryCache.set(inventory);
 
     res.json({
@@ -69,8 +42,6 @@ router.get('/', async (_req, res) => {
       message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
-
-  await closeBrowser();
 });
 
 export default router;
