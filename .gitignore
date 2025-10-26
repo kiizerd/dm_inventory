@@ -3,6 +3,7 @@
 node_modules
 
 server/dist
+server/src/cache/*.json
 
 .env
 

@@ -1,6 +1,8 @@
 // cache/inventoryCache.ts
 import { scrapingService } from '../services/scraper';
 import { Vehicle } from '../types';
+import fs from 'fs';
+import path from 'path';
 
 interface CacheEntry {
   data: Vehicle[];
@@ -10,12 +12,41 @@ interface CacheEntry {
 class InventoryCache {
   private cache: CacheEntry | null = null;
   private readonly TTL: number = 30 * 60 * 1000; // 30 minutes in milliseconds
+  private readonly cacheFile = path.join(__dirname, 'inventory-cache.json');
+
+  constructor() {
+    this.loadFromDisk();
+  }
+
+  private loadFromDisk(): void {
+    console.log('Reading data from disk...');
+    try {
+      if (fs.existsSync(this.cacheFile)) {
+        const data = JSON.parse(fs.readFileSync(this.cacheFile, 'utf-8')) as CacheEntry;
+        this.cache = data;
+      }
+    } catch (error) {
+      console.error('Error loading cache from disk:', error);
+    }
+  }
+
+  private saveToDisk(): void {
+    console.log('Writing data to disk...');
+    try {
+      if (this.cache) {
+        fs.writeFileSync(this.cacheFile, JSON.stringify(this.cache), 'utf-8');
+      }
+    } catch (error) {
+      console.error('Error saving cache to disk:', error);
+    }
+  }
 
   set(data: Vehicle[]): void {
     this.cache = {
       data,
       timestamp: Date.now(),
     };
+    this.saveToDisk();
   }
 
   get(): Vehicle[] | null {
@@ -32,6 +63,13 @@ class InventoryCache {
 
   clear(): void {
     this.cache = null;
+    try {
+      if (fs.existsSync(this.cacheFile)) {
+        fs.unlinkSync(this.cacheFile);
+      }
+    } catch (error) {
+      console.error('Error clearing cache file:', error);
+    }
   }
 
   isStale(): boolean {
