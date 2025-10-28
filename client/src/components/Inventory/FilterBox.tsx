@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, RangeSlider, Text } from '@mantine/core';
+import { ActionIcon, MultiSelect, RangeSlider, Text } from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import type { Vehicle } from '../../types';
 
@@ -9,14 +9,14 @@ type Props = {
 };
 
 type FilterState = {
-  year: string;
-  make: string;
-  model: string;
+  year: string[];
+  make: string[];
+  model: string[];
   priceMin: number | null;
   priceMax: number | null;
   mileageMin: number | null;
   mileageMax: number | null;
-  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
+  source: ('ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr')[];
 };
 
 type FilterOptions = {
@@ -27,25 +27,25 @@ type FilterOptions = {
   priceMax: number;
   mileageMin: number;
   mileageMax: number;
-  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr'[];
+  source: ('ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr')[];
+};
+
+const defaultFilter: FilterState = {
+  year: [],
+  make: [],
+  model: [],
+  priceMin: null,
+  priceMax: null,
+  mileageMin: null,
+  mileageMax: null,
+  source: [],
 };
 
 export default function FilterBox({ items, onFiltered }: Props) {
-  const [filters, setFilters] = useState<FilterState>({
-    year: 'All',
-    make: 'All',
-    model: 'All',
-    priceMin: null,
-    priceMax: null,
-    mileageMin: null,
-    mileageMax: null,
-    source: 'All',
-  });
-
-  // UI open/closed state for sliding animation (desktop)
+  const [filters, setFilters] = useState<FilterState>(defaultFilter);
   const [open, setOpen] = useState<boolean>(true);
 
-  // derive select options from incoming items (years/makes/models)
+  // derive select options from incoming FILTERED items (years/makes/models)
   const options = useMemo(() => {
     const result = {
       year: [],
@@ -82,11 +82,11 @@ export default function FilterBox({ items, onFiltered }: Props) {
   // compute filtered items whenever filters or items change
   useEffect(() => {
     const { year, make, model, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
-    const filtered = items.filter((v) => {
-      if (year !== 'All' && String(v.year) !== String(year)) return false;
-      if (make !== 'All' && v.make !== make) return false;
-      if (model !== 'All' && v.model !== model) return false;
-      if (source !== 'All' && v.source !== source) return false;
+    const filtered = items.filter((v: Vehicle) => {
+      if (year.length !== 0 && !year.includes(v.year)) return false;
+      if (make.length !== 0 && !make.includes(v.make)) return false;
+      if (model.length !== 0 && !model.includes(v.model)) return false;
+      if (source.length !== 0 && !source.includes(v.source)) return false;
 
       const priceNum = Number(String(v.price).replace(/[^0-9.-]+/g, '')) || 0;
       if (priceMin !== null && priceNum < priceMin) return false;
@@ -101,11 +101,6 @@ export default function FilterBox({ items, onFiltered }: Props) {
 
     onFiltered(filtered);
   }, [items, filters, onFiltered]);
-
-  const inputBase =
-    'w-full rounded-md border border-gray-700 bg-gray-800 text-gray-100 px-2 py-2 text-sm';
-  const labelBase = 'block text-sm text-gray-300';
-  const optionBase = 'bg-gray-900 text-gray-100';
 
   return (
     <div
@@ -137,69 +132,57 @@ export default function FilterBox({ items, onFiltered }: Props) {
           </div>
 
           {/* Year */}
-          <div>
-            <label className={labelBase}>Year</label>
-            <select
-              value={filters.year}
-              onChange={(e) => setFilters((s) => ({ ...s, year: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.year.map((y) => (
-                <option key={y}>{y}</option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            className="w-56"
+            label="Year"
+            placeholder="Select years..."
+            clearable
+            searchable
+            data={options.year}
+            value={filters.year}
+            onChange={(e) => setFilters((s) => ({ ...s, year: e }))}
+          />
 
           {/* Make */}
-          <div>
-            <label className={labelBase}>Make</label>
-            <select
-              value={filters.make}
-              onChange={(e) => setFilters((s) => ({ ...s, make: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.make.map((m) => (
-                <option key={m}>{m}</option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            className="w-56"
+            label="Make"
+            placeholder="Select makes..."
+            clearable
+            searchable
+            data={options.make}
+            value={filters.make}
+            onChange={(e) => setFilters((s) => ({ ...s, make: e }))}
+          />
 
           {/* Model */}
-          <div>
-            <label className={labelBase}>Model</label>
-            <select
-              value={filters.model}
-              onChange={(e) => setFilters((s) => ({ ...s, model: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.model.map((mo) => (
-                <option key={mo} value={mo}>
-                  {mo}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelBase}>Source</label>
-            <select
-              value={filters.source}
-              onChange={(e) =>
-                setFilters((s) => ({ ...s, source: e.target.value as FilterState['source'] }))
-              }
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {Array.from(options.source).map((so) => (
-                <option key={so} value={so}>
-                  {so}
-                </option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            className="w-56"
+            label="Model"
+            placeholder="Select models..."
+            clearable
+            searchable
+            data={options.model}
+            value={filters.model}
+            onChange={(e) => setFilters((s) => ({ ...s, model: e }))}
+          />
+
+          {/* Source */}
+          <MultiSelect
+            className="w-56"
+            label="Source"
+            placeholder="Select source..."
+            clearable
+            searchable
+            data={options.source}
+            value={filters.source}
+            onChange={(e: string[]) =>
+              setFilters((s) => ({ ...s, source: e as FilterOptions['source'] }))
+            }
+          />
+
           <hr />
+
           {/* Price */}
           <div className="my-8 py-6">
             <RangeSlider
