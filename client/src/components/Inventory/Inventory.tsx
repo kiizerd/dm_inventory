@@ -102,7 +102,11 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
         <div>
           {loading ? <div>Loading inventory…</div> : ''}
           {error ? <div>Error: {error}</div> : ''}
-          <InventoryGrid items={searchedItems} />
+          <InventoryGrid
+            items={searchedItems.filter(
+              (obj, index, self) => index === self.findIndex((o) => o.vin === obj.vin),
+            )}
+          />
         </div>
       </main>
     </div>
