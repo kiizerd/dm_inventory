@@ -1,13 +1,12 @@
+import { Card } from '@mantine/core';
 import type { Vehicle } from '../../types';
 
 export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}`.trim();
-  const cardBase =
-    'rounded-lg overflow-hidden borderbg-gradient-to-b from-gray-900/60 to-gray-900/50 border-gray-700 shadow-sm hover:shadow-lg transition-shadow';
   const metaText = 'text-xs text-gray-400';
 
   return (
-    <article className={cardBase}>
+    <Card p={0}>
       <a
         href={vehicle.link}
         target="_blank"
@@ -55,6 +54,6 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
           <span className="text-xs text-gray-400">{vehicle.make}</span>
         </div>
       </div>
-    </article>
+    </Card>
   );
 }

@@ -82,7 +82,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   }, [items, filteredItems, debouncedSearch]);
 
   return (
-    <div className="min-h-screen w-screen flex items-start justify-center">
+    <div className="min-h-screen w-full flex items-start justify-center">
       <header className="fixed inset-x-0 top-0 bg-gray-900/80 backdrop-blur z-40">
         <div className="container mx-auto px-4 py-3">
           <SearchBar
@@ -99,7 +99,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
         <aside>
           <FilterBox items={items} onFiltered={setFilteredItems} />
         </aside>
-        <div>
+        <div className="px-8">
           {loading ? <div>Loading inventory…</div> : ''}
           {error ? <div>Error: {error}</div> : ''}
           <InventoryGrid
