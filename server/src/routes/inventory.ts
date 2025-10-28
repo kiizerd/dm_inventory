@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { closeBrowser } from '../services/browserManager';
 import { inventoryCache } from '../cache/inventoryCache';
 import { scrapingService } from '../services/scraper';
 
