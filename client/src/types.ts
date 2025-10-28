@@ -1,14 +1,3 @@
-export interface InventoryItem {
-  id: string;
-  title: string;
-  price: string | number;
-  mileage: string | number;
-  inStock?: boolean;
-  imageUrl?: string | null;
-  source: string;
-  url?: string | null;
-}
-
 export interface Vehicle {
   year: string;
   make: string;
@@ -20,5 +9,5 @@ export interface Vehicle {
   stk: string;
   link: string;
   image: string | undefined;
+  source: 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
 }
-

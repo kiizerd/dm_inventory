@@ -16,6 +16,7 @@ type FilterState = {
   priceMax: number | null;
   mileageMin: number | null;
   mileageMax: number | null;
+  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
 };
 
 type FilterOptions = {
@@ -26,6 +27,7 @@ type FilterOptions = {
   priceMax: number;
   mileageMin: number;
   mileageMax: number;
+  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr'[];
 };
 
 export default function FilterBox({ items, onFiltered }: Props) {
@@ -37,6 +39,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
     priceMax: null,
     mileageMin: null,
     mileageMax: null,
+    source: 'All',
   });
 
   // UI open/closed state for sliding animation (desktop)
@@ -52,6 +55,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
       priceMax: 0,
       mileageMin: -1,
       mileageMax: 0,
+      source: ['ford', 'dodge', 'toyota', 'nissan', 'dlr'],
     } as FilterOptions;
 
     items.forEach((item) => {
@@ -77,11 +81,12 @@ export default function FilterBox({ items, onFiltered }: Props) {
 
   // compute filtered items whenever filters or items change
   useEffect(() => {
-    const { year, make, model, priceMin, priceMax, mileageMin, mileageMax } = filters;
+    const { year, make, model, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
     const filtered = items.filter((v) => {
       if (year !== 'All' && String(v.year) !== String(year)) return false;
       if (make !== 'All' && v.make !== make) return false;
       if (model !== 'All' && v.model !== model) return false;
+      if (source !== 'All' && v.source !== source) return false;
 
       const priceNum = Number(String(v.price).replace(/[^0-9.-]+/g, '')) || 0;
       if (priceMin !== null && priceNum < priceMin) return false;
@@ -173,6 +178,23 @@ export default function FilterBox({ items, onFiltered }: Props) {
               {options.model.map((mo) => (
                 <option key={mo} value={mo}>
                   {mo}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelBase}>Source</label>
+            <select
+              value={filters.source}
+              onChange={(e) =>
+                setFilters((s) => ({ ...s, source: e.target.value as FilterState['source'] }))
+              }
+              className={`mt-1 ${inputBase}`}
+            >
+              <option className={optionBase}>All</option>
+              {Array.from(options.source).map((so) => (
+                <option key={so} value={so}>
+                  {so}
                 </option>
               ))}
             </select>
