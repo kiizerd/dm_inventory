@@ -51,7 +51,7 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
           >
             View listing
           </a>
-          <span className="text-xs text-gray-400">{vehicle.make}</span>
+          <span className="text-xs text-gray-400">{vehicle.source.toUpperCase()}</span>
         </div>
       </div>
     </Card>
