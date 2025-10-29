@@ -46,7 +46,7 @@ export async function scrapeDLR(): Promise<Vehicle[]> {
           year: item.Year,
           make: item.Make,
           model: item.Model,
-          trim: item.Trim.slice(2),
+          trim: item.Trim,
           price: item.PriceDisplay,
           mileage: item.Mileage.toLocaleString() + ' mi',
           vin: item.Vin,
