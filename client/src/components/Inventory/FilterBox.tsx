@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, MultiSelect, RangeSlider, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  MultiSelect,
+  RangeSlider,
+  Text,
+  type MultiSelectProps,
+} from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import type { Vehicle } from '../../types';
 
@@ -102,6 +109,13 @@ export default function FilterBox({ items, onFiltered }: Props) {
     onFiltered(filtered);
   }, [items, filters, onFiltered]);
 
+  const multiSelectProps = {
+    className: 'w-60',
+    clearable: true,
+    searchable: true,
+    maxDropdownHeight: 600,
+  } as MultiSelectProps;
+
   return (
     <div
       className={`relative pt-2 pl-4 transition-min-w duration-300 ease-in-out ${open ? 'min-w-2xs' : 'min-w-60'}`}
@@ -111,7 +125,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           pos={'absolute'}
-          className={`top-2 transition bg-gray-600 text-xl duration-250 ease-in-out z-1
+          className={`top-2 transform transition duration-400 ease-in-out z-1
             ${open ? 'right-2 translate-x-0' : 'right-0 -translate-x-56 md:-translate-x-52 rotate-180'} `}
           title={open ? 'Hide filters' : 'Show filters'}
         >
@@ -119,7 +133,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
         </ActionIcon>
 
         <div
-          className={`filter-body bg-gray-900 border border-gray-700 rounded p-4 pt-2 space-y-2 md:space-y-4
+          className={`filter-body p-4 pt-2 space-y-2 md:space-y-4 bg-gray-900/80 border border-gray-700 rounded
             transform transition duration-300 ease-in-out
             ${
               open
@@ -127,71 +141,65 @@ export default function FilterBox({ items, onFiltered }: Props) {
                 : '-translate-x-full opacity-0 -scale-x-3'
             }`}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start gap-4">
             <p className="font-semibold text-gray-100">Filters</p>
+            <Button size="xs" variant="outline" onClick={() => setFilters(defaultFilter)}>
+              Reset
+            </Button>
           </div>
-
           {/* Year */}
           <MultiSelect
-            className="w-56"
             label="Year"
             placeholder="Select years..."
-            clearable
-            searchable
             data={options.year}
             value={filters.year}
             onChange={(e) => setFilters((s) => ({ ...s, year: e }))}
+            {...multiSelectProps}
           />
 
           {/* Make */}
           <MultiSelect
-            className="w-56"
             label="Make"
             placeholder="Select makes..."
-            clearable
-            searchable
             data={options.make}
             value={filters.make}
             onChange={(e) => setFilters((s) => ({ ...s, make: e }))}
+            {...multiSelectProps}
           />
 
           {/* Model */}
           <MultiSelect
-            className="w-56"
             label="Model"
             placeholder="Select models..."
-            clearable
-            searchable
             data={options.model}
             value={filters.model}
             onChange={(e) => setFilters((s) => ({ ...s, model: e }))}
+            {...multiSelectProps}
           />
 
           {/* Source */}
           <MultiSelect
-            className="w-56"
             label="Source"
             placeholder="Select source..."
-            clearable
-            searchable
             data={options.source}
             value={filters.source}
             onChange={(e: string[]) =>
               setFilters((s) => ({ ...s, source: e as FilterOptions['source'] }))
             }
+            {...multiSelectProps}
           />
 
           <hr />
 
           {/* Price */}
-          <div className="my-8 py-6">
+          <div className="my-8 py-4">
             <RangeSlider
               size="lg"
               minRange={500}
               min={options.priceMin - 1000}
               max={options.priceMax + 1000}
               step={1000}
-              label={(value) => `$${value}`}
+              label={(value) => `$${value.toLocaleString()}`}
               labelAlwaysOn
               value={[
                 filters.priceMin ?? options.priceMin - (options.priceMin % 1000),
@@ -205,14 +213,14 @@ export default function FilterBox({ items, onFiltered }: Props) {
           </div>
 
           {/* Mileage */}
-          <div className="pb-4">
+          <div className="pb-2">
             <RangeSlider
               size="lg"
               minRange={500}
               min={options.mileageMin - 1000}
               max={options.mileageMax + 1000}
               step={1000}
-              label={(value) => `${value} mi`}
+              label={(value) => `${value.toLocaleString()} mi`}
               labelAlwaysOn
               value={[
                 filters.mileageMin ?? options.mileageMin - (options.mileageMin % 1000),
