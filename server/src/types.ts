@@ -9,5 +9,6 @@ export interface Vehicle {
   stk: string;
   link: string;
   image: string | undefined;
+  fuel?: string;
   source: 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
 }

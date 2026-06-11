@@ -1,4 +1,5 @@
 import type { Vehicle } from '../types';
+import { normalizeFuelType } from '../services/fuel';
 
 interface DLRVehicle {
   Year: string;
@@ -7,6 +8,7 @@ interface DLRVehicle {
   Trim: string;
   PriceDisplay: string;
   Mileage: number;
+  Fuel?: string;
   Vin: string;
   StockNo: string;
   VehicleDetailUrl: string;
@@ -46,13 +48,14 @@ export async function scrapeDLR(): Promise<Vehicle[]> {
           year: item.Year,
           make: item.Make,
           model: item.Model,
-          trim: item.Trim.slice(2),
+          trim: item.Trim,
           price: item.PriceDisplay,
           mileage: item.Mileage.toLocaleString() + ' mi',
           vin: item.Vin,
           stk: item.StockNo.replace('STK', ''),
           link: urlBase + item.VehicleDetailUrl,
           image: item.FirstImageUrl,
+          fuel: normalizeFuelType(item.Fuel),
           source: 'dlr',
         });
       });

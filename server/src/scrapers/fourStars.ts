@@ -1,4 +1,5 @@
 import type { Vehicle } from '../types';
+import { normalizeFuelType } from '../services/fuel';
 
 interface FourStarsVehicleCard {
   VehicleYear: number;
@@ -6,6 +7,8 @@ interface FourStarsVehicleCard {
   VehicleModel: string;
   VehicleTrim: string;
   Mileage: string;
+  VehicleFuelType?: string;
+  VehicleEngine?: string;
   VehicleVin: string;
   VehicleStockNumber: string;
   VehicleDetailUrl: string;
@@ -71,6 +74,7 @@ export async function scrapeFourStars(
         stk: item.VehicleStockNumber,
         link: item.VehicleDetailUrl,
         image: urlBase + item.VehicleImageModel.VehiclePhotoSrc,
+        fuel: normalizeFuelType(item.VehicleFuelType || item.VehicleEngine),
         source: store,
       });
     });

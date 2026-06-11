@@ -1,55 +1,32 @@
-This repository is a small monorepo with a React (Vite + Tailwind) client and a TypeScript Express server that runs scrapers.
+# Project instructions for Copilot
 
-Key facts (big picture)
-- Two main services: `client/` (React + Vite) and `server/` (Express scrapers). See `client/package.json` and `server/package.json` for scripts.
-- Server scrapers live in `server/src/scrapers/` (see `server/src/scrapers/ford.ts`). They use Puppeteer and page request interception; treat scraping code as I/O-heavy and stateful.
-- Server exposes a small API: `/api/inventory` and `/api/health` (see `server/src/index.ts` and `server/src/routes/inventory.ts`). Client fetches `/api/inventory` to populate the grid.
+This repository is a small monorepo with:
+- `client/` — React + Vite + TypeScript front end
+- `server/` — Express + TypeScript API and scrapers
 
-Developer workflows / useful commands
-- Start client dev server: `cd client && npm install && npm run dev` (Vite).
-- Start server in dev mode with hot-reload: `cd server && npm install && npm run dev` (uses `ts-node-dev`).
-- Build client: `cd client && npm run build` (runs `tsc -b && vite build`).
-- Build server: `cd server && npm run build` (`tsc`).
-- Format repo: at repo root `npm run format` (Prettier configured in `.prettierrc`).
+## Start here
+- Client dev server: `cd client && npm install && npm run dev`
+- Server dev server: `cd server && npm install && npm run dev`
+- Build client: `cd client && npm run build`
+- Build server: `cd server && npm run build`
+- Format files: `npm run format`
 
-Project-specific patterns & conventions
-- Types are defined separately for server and client: `server/src/types.ts` and `client/src/types.ts`. Be careful: some fields differ (e.g. `year` types). Prefer editing both if you change the public shape of inventory objects.
-- The client UI for inventory lives under `client/src/components/Inventory/`:
-  - `Inventory.tsx` wires the SearchBar and inventory grid.
-  - `InventoryGrid.tsx`, `InventoryCard.tsx`, `SearchBar.tsx` contain display + filtering logic (debounced search, client-side filtering).
-- Filtering flow: `Inventory` holds `search` and `debouncedSearch` (300ms), passes `debouncedSearch` down to the grid. If you change filtering behavior, update the debounce/prop contract in `Inventory.tsx`.
-- Network integration: client calls `GET /api/inventory` (see `client/src/components/Inventory/InventoryGrid.tsx` in earlier iterations). Server route calls scrapers (see `server/src/routes/inventory.ts`). When changing JSON shape, update both sides.
+## Key files
+- `server/src/index.ts` — server bootstrap and route mounting
+- `server/src/routes/inventory.ts` — inventory API response and cache behavior
+- `server/src/services/scraper.ts` — scraper orchestration
+- `server/src/cache/inventoryCache.ts` — cached inventory data
+- `client/src/components/Inventory/Inventory.tsx` — fetches inventory and wires search/filter UI
+- `client/src/components/Inventory/InventoryGrid.tsx` — inventory grid rendering
+- `client/src/components/Inventory/FilterBox.tsx` and `SearchBar.tsx` — filter/search controls
+- `client/src/types.ts` and `server/src/types.ts` — vehicle shape definitions
 
-Scraper notes (important)
-- `server/src/scrapers/ford.ts`:
-  - Launches Puppeteer (`puppeteer.launch()`), sets request interception with an explicit blacklist.
-  - Extracts many strings from page DOM; strings can be null/undefined — handle missing data defensively.
-  - The scraper returns `Vehicle[]` which is directly returned by the API route. If you add fields, ensure they are safe to JSON.stringify.
+## Project rules
+- Keep the client and server type definitions in sync when the inventory JSON shape changes.
+- Prefer defensive handling for scraper output because page data can be missing or inconsistent.
+- If you change API behavior, update the related UI fetch logic and any cache assumptions.
+- Avoid introducing framework-specific assumptions that do not match this Vite + React setup.
 
-Editing guidance & examples
-- Small UI change: edit `client/src/components/Inventory/InventoryGrid.tsx` or `InventoryCard.tsx`. Use Tailwind classes already in use.
-- If you change an API contract, update `server/src/types.ts` and `client/src/types.ts` together. Example: change `Vehicle.price` from `string` to `number` — update both files and any formatting code.
-- To add a new server route, modify `server/src/routes/` and register it in `server/src/index.ts`.
-
-Example: add a new query param `?make=Ford` to the inventory endpoint
-- server: accept `req.query.make` in `server/src/routes/inventory.ts`, filter the returned array from the scraper before res.json
-- client: append query param to fetch URL in the InventoryGrid fetch call or let Inventory component pass `endpoint` prop to the grid
-
-Files to inspect first (high signal)
-- `server/src/scrapers/ford.ts` — scraping implementation and request interception
-- `server/src/routes/inventory.ts` — API entry for inventory
-- `server/src/index.ts` — server startup and routes mounting
-- `client/src/components/Inventory/Inventory.tsx` — search + grid wiring (debounce pattern)
-- `client/src/components/Inventory/InventoryGrid.tsx` and `InventoryCard.tsx` — UI and filtering logic
-- `client/src/types.ts` and `server/src/types.ts` — keep these in sync for cross-service changes
-
-Testing / verification hints
-- There are no automated tests. Validate changes by running both dev servers and exercising the UI.
-- Scrapers are network- and site-dependent; run scrapers behind a stable connection and be prepared for flakiness.
-
-Common pitfalls for an agent
-- Do NOT assume types are shared: update both type files when modifying the inventory shape.
-- Scraper code expects DOM nodes — always guard against `null` when using `page.$eval` or `element?.$eval`.
-- Avoid adding Next.js-specific eslint comments (project is Vite + React); one-off eslint rules may not exist.
-
-If anything here is unclear or you want the instructions tuned to a specific task (for example: add an API filter, improve scraper resilience, write unit tests), say which area and I'll iterate.
+## Verification
+- There are no automated tests in this repo today, so verify UI and API changes by running the relevant dev servers and checking the affected flows manually.
+- Scraper code is network-dependent and may be flaky; handle failures gracefully and avoid breaking the API contract.

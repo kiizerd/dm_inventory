@@ -3,6 +3,7 @@ import {
   ActionIcon,
   Button,
   MultiSelect,
+  NativeSelect,
   RangeSlider,
   Text,
   type MultiSelectProps,
@@ -13,34 +14,40 @@ import type { Vehicle } from '../../types';
 type Props = {
   items: Vehicle[];
   onFiltered: (items: Vehicle[]) => void;
+  sortBy: 'price' | 'mileage';
+  sortDirection: 'asc' | 'desc';
+  onSortChange: (sortBy: 'price' | 'mileage', sortDirection: 'asc' | 'desc') => void;
 };
 
 type FilterState = {
   year: string[];
   make: string[];
   model: string[];
+  fuel: string[];
   priceMin: number | null;
   priceMax: number | null;
   mileageMin: number | null;
   mileageMax: number | null;
-  source: ('ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr')[];
+  source: string[];
 };
 
 type FilterOptions = {
   year: string[];
   make: string[];
   model: string[];
+  fuel: Array<{ value: string; label: string }>;
   priceMin: number;
   priceMax: number;
   mileageMin: number;
   mileageMax: number;
-  source: ('ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr')[];
+  source: Array<{ value: string; label: string }>;
 };
 
 const defaultFilter: FilterState = {
   year: [],
   make: [],
   model: [],
+  fuel: [],
   priceMin: null,
   priceMax: null,
   mileageMin: null,
@@ -48,7 +55,13 @@ const defaultFilter: FilterState = {
   source: [],
 };
 
-export default function FilterBox({ items, onFiltered }: Props) {
+export default function FilterBox({
+  items,
+  onFiltered,
+  sortBy,
+  sortDirection,
+  onSortChange,
+}: Props) {
   const [filters, setFilters] = useState<FilterState>(defaultFilter);
   const [open, setOpen] = useState<boolean>(true);
 
@@ -58,17 +71,30 @@ export default function FilterBox({ items, onFiltered }: Props) {
       year: [],
       make: [],
       model: [],
+      fuel: [],
       priceMin: -1,
       priceMax: 0,
       mileageMin: -1,
       mileageMax: 0,
-      source: ['ford', 'dodge', 'toyota', 'nissan', 'dlr'],
+      source: [
+        { value: 'ford', label: 'Ford' },
+        { value: 'dodge', label: 'Dodge' },
+        { value: 'toyota', label: 'Toyota' },
+        { value: 'nissan', label: 'Nissan' },
+        { value: 'dlr', label: 'DLR' },
+      ],
     } as FilterOptions;
 
     items.forEach((item) => {
       if (!result.year.includes(item.year)) result.year.push(item.year);
       if (!result.make.includes(item.make)) result.make.push(item.make);
       if (!result.model.includes(item.model)) result.model.push(item.model);
+      if (item.fuel) {
+        const fuelLabel = item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1);
+        if (!result.fuel.some((entry) => entry.value === item.fuel)) {
+          result.fuel.push({ value: item.fuel, label: fuelLabel });
+        }
+      }
       const price = Number(item.price.replace(/[^0-9.-]+/g, ''));
       if ((result.priceMin > price && price != 0) || result.priceMin == -1) result.priceMin = price;
       if (result.priceMax < price) result.priceMax = price;
@@ -82,17 +108,19 @@ export default function FilterBox({ items, onFiltered }: Props) {
     result.year.sort().reverse();
     result.make.sort();
     result.model.sort();
+    result.fuel.sort((a, b) => a.label.localeCompare(b.label));
 
     return result;
   }, [items]);
 
   // compute filtered items whenever filters or items change
   useEffect(() => {
-    const { year, make, model, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
+    const { year, make, model, fuel, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
     const filtered = items.filter((v: Vehicle) => {
       if (year.length !== 0 && !year.includes(v.year)) return false;
       if (make.length !== 0 && !make.includes(v.make)) return false;
       if (model.length !== 0 && !model.includes(v.model)) return false;
+      if (fuel.length !== 0 && !(v.fuel && fuel.includes(v.fuel))) return false;
       if (source.length !== 0 && !source.includes(v.source)) return false;
 
       const priceNum = Number(String(v.price).replace(/[^0-9.-]+/g, '')) || 0;
@@ -147,6 +175,28 @@ export default function FilterBox({ items, onFiltered }: Props) {
               Reset
             </Button>
           </div>
+
+          <Text size="sm" className="text-gray-200">Sort</Text>
+          <NativeSelect
+            size="sm"
+            label=""
+            description=""
+            data={[
+              { label: 'Price (Ascending)', value: 'price-asc' },
+              { label: 'Price (Descending)', value: 'price-desc' },
+              { label: 'Mileage (Ascending)', value: 'mileage-asc' },
+              { label: 'Mileage (Descending)', value: 'mileage-desc' },
+            ]}
+            value={`${sortBy}-${sortDirection}`}
+            onChange={(event) => {
+              const [nextSortBy, nextSortDirection] = event.currentTarget.value.split('-') as [
+                'price' | 'mileage',
+                'asc' | 'desc'
+              ];
+              onSortChange(nextSortBy, nextSortDirection);
+            }}
+            className="w-full"
+          />
           {/* Year */}
           <MultiSelect
             label="Year"
@@ -177,15 +227,23 @@ export default function FilterBox({ items, onFiltered }: Props) {
             {...multiSelectProps}
           />
 
+          {/* Fuel Type */}
+          <MultiSelect
+            label="Fuel Type"
+            placeholder="Select fuel types..."
+            data={options.fuel}
+            value={filters.fuel}
+            onChange={(e) => setFilters((s) => ({ ...s, fuel: e }))}
+            {...multiSelectProps}
+          />
+
           {/* Source */}
           <MultiSelect
             label="Source"
             placeholder="Select source..."
             data={options.source}
             value={filters.source}
-            onChange={(e: string[]) =>
-              setFilters((s) => ({ ...s, source: e as FilterOptions['source'] }))
-            }
+            onChange={(e) => setFilters((s) => ({ ...s, source: e }))}
             {...multiSelectProps}
           />
 
