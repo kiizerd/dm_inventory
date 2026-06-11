@@ -1,67 +1,100 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActionIcon, RangeSlider, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  MultiSelect,
+  NativeSelect,
+  RangeSlider,
+  Text,
+  type MultiSelectProps,
+} from '@mantine/core';
 import { IconChevronLeft } from '@tabler/icons-react';
 import type { Vehicle } from '../../types';
 
 type Props = {
   items: Vehicle[];
   onFiltered: (items: Vehicle[]) => void;
+  sortBy: 'price' | 'mileage';
+  sortDirection: 'asc' | 'desc';
+  onSortChange: (sortBy: 'price' | 'mileage', sortDirection: 'asc' | 'desc') => void;
 };
 
 type FilterState = {
-  year: string;
-  make: string;
-  model: string;
+  year: string[];
+  make: string[];
+  model: string[];
+  fuel: string[];
   priceMin: number | null;
   priceMax: number | null;
   mileageMin: number | null;
   mileageMax: number | null;
-  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
+  source: string[];
 };
 
 type FilterOptions = {
   year: string[];
   make: string[];
   model: string[];
+  fuel: Array<{ value: string; label: string }>;
   priceMin: number;
   priceMax: number;
   mileageMin: number;
   mileageMax: number;
-  source: 'All' | 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr'[];
+  source: Array<{ value: string; label: string }>;
 };
 
-export default function FilterBox({ items, onFiltered }: Props) {
-  const [filters, setFilters] = useState<FilterState>({
-    year: 'All',
-    make: 'All',
-    model: 'All',
-    priceMin: null,
-    priceMax: null,
-    mileageMin: null,
-    mileageMax: null,
-    source: 'All',
-  });
+const defaultFilter: FilterState = {
+  year: [],
+  make: [],
+  model: [],
+  fuel: [],
+  priceMin: null,
+  priceMax: null,
+  mileageMin: null,
+  mileageMax: null,
+  source: [],
+};
 
-  // UI open/closed state for sliding animation (desktop)
+export default function FilterBox({
+  items,
+  onFiltered,
+  sortBy,
+  sortDirection,
+  onSortChange,
+}: Props) {
+  const [filters, setFilters] = useState<FilterState>(defaultFilter);
   const [open, setOpen] = useState<boolean>(true);
 
-  // derive select options from incoming items (years/makes/models)
+  // derive select options from incoming FILTERED items (years/makes/models)
   const options = useMemo(() => {
     const result = {
       year: [],
       make: [],
       model: [],
+      fuel: [],
       priceMin: -1,
       priceMax: 0,
       mileageMin: -1,
       mileageMax: 0,
-      source: ['ford', 'dodge', 'toyota', 'nissan', 'dlr'],
+      source: [
+        { value: 'ford', label: 'Ford' },
+        { value: 'dodge', label: 'Dodge' },
+        { value: 'toyota', label: 'Toyota' },
+        { value: 'nissan', label: 'Nissan' },
+        { value: 'dlr', label: 'DLR' },
+      ],
     } as FilterOptions;
 
     items.forEach((item) => {
       if (!result.year.includes(item.year)) result.year.push(item.year);
       if (!result.make.includes(item.make)) result.make.push(item.make);
       if (!result.model.includes(item.model)) result.model.push(item.model);
+      if (item.fuel) {
+        const fuelLabel = item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1);
+        if (!result.fuel.some((entry) => entry.value === item.fuel)) {
+          result.fuel.push({ value: item.fuel, label: fuelLabel });
+        }
+      }
       const price = Number(item.price.replace(/[^0-9.-]+/g, ''));
       if ((result.priceMin > price && price != 0) || result.priceMin == -1) result.priceMin = price;
       if (result.priceMax < price) result.priceMax = price;
@@ -75,18 +108,20 @@ export default function FilterBox({ items, onFiltered }: Props) {
     result.year.sort().reverse();
     result.make.sort();
     result.model.sort();
+    result.fuel.sort((a, b) => a.label.localeCompare(b.label));
 
     return result;
   }, [items]);
 
   // compute filtered items whenever filters or items change
   useEffect(() => {
-    const { year, make, model, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
-    const filtered = items.filter((v) => {
-      if (year !== 'All' && String(v.year) !== String(year)) return false;
-      if (make !== 'All' && v.make !== make) return false;
-      if (model !== 'All' && v.model !== model) return false;
-      if (source !== 'All' && v.source !== source) return false;
+    const { year, make, model, fuel, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
+    const filtered = items.filter((v: Vehicle) => {
+      if (year.length !== 0 && !year.includes(v.year)) return false;
+      if (make.length !== 0 && !make.includes(v.make)) return false;
+      if (model.length !== 0 && !model.includes(v.model)) return false;
+      if (fuel.length !== 0 && !(v.fuel && fuel.includes(v.fuel))) return false;
+      if (source.length !== 0 && !source.includes(v.source)) return false;
 
       const priceNum = Number(String(v.price).replace(/[^0-9.-]+/g, '')) || 0;
       if (priceMin !== null && priceNum < priceMin) return false;
@@ -102,10 +137,12 @@ export default function FilterBox({ items, onFiltered }: Props) {
     onFiltered(filtered);
   }, [items, filters, onFiltered]);
 
-  const inputBase =
-    'w-full rounded-md border border-gray-700 bg-gray-800 text-gray-100 px-2 py-2 text-sm';
-  const labelBase = 'block text-sm text-gray-300';
-  const optionBase = 'bg-gray-900 text-gray-100';
+  const multiSelectProps = {
+    className: 'w-60',
+    clearable: true,
+    searchable: true,
+    maxDropdownHeight: 600,
+  } as MultiSelectProps;
 
   return (
     <div
@@ -116,7 +153,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           pos={'absolute'}
-          className={`top-2 transition bg-gray-600 text-xl duration-250 ease-in-out z-1
+          className={`top-2 transform transition duration-400 ease-in-out z-1
             ${open ? 'right-2 translate-x-0' : 'right-0 -translate-x-56 md:-translate-x-52 rotate-180'} `}
           title={open ? 'Hide filters' : 'Show filters'}
         >
@@ -124,7 +161,7 @@ export default function FilterBox({ items, onFiltered }: Props) {
         </ActionIcon>
 
         <div
-          className={`filter-body bg-gray-900 border border-gray-700 rounded p-4 pt-2 space-y-2 md:space-y-4
+          className={`filter-body p-4 pt-2 space-y-2 md:space-y-4 bg-gray-900/80 border border-gray-700 rounded
             transform transition duration-300 ease-in-out
             ${
               open
@@ -132,83 +169,95 @@ export default function FilterBox({ items, onFiltered }: Props) {
                 : '-translate-x-full opacity-0 -scale-x-3'
             }`}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start gap-4">
             <p className="font-semibold text-gray-100">Filters</p>
+            <Button size="xs" variant="outline" onClick={() => setFilters(defaultFilter)}>
+              Reset
+            </Button>
           </div>
 
+          <Text size="sm" className="text-gray-200">Sort</Text>
+          <NativeSelect
+            size="sm"
+            label=""
+            description=""
+            data={[
+              { label: 'Price (Ascending)', value: 'price-asc' },
+              { label: 'Price (Descending)', value: 'price-desc' },
+              { label: 'Mileage (Ascending)', value: 'mileage-asc' },
+              { label: 'Mileage (Descending)', value: 'mileage-desc' },
+            ]}
+            value={`${sortBy}-${sortDirection}`}
+            onChange={(event) => {
+              const [nextSortBy, nextSortDirection] = event.currentTarget.value.split('-') as [
+                'price' | 'mileage',
+                'asc' | 'desc'
+              ];
+              onSortChange(nextSortBy, nextSortDirection);
+            }}
+            className="w-full"
+          />
           {/* Year */}
-          <div>
-            <label className={labelBase}>Year</label>
-            <select
-              value={filters.year}
-              onChange={(e) => setFilters((s) => ({ ...s, year: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.year.map((y) => (
-                <option key={y}>{y}</option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            label="Year"
+            placeholder="Select years..."
+            data={options.year}
+            value={filters.year}
+            onChange={(e) => setFilters((s) => ({ ...s, year: e }))}
+            {...multiSelectProps}
+          />
 
           {/* Make */}
-          <div>
-            <label className={labelBase}>Make</label>
-            <select
-              value={filters.make}
-              onChange={(e) => setFilters((s) => ({ ...s, make: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.make.map((m) => (
-                <option key={m}>{m}</option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            label="Make"
+            placeholder="Select makes..."
+            data={options.make}
+            value={filters.make}
+            onChange={(e) => setFilters((s) => ({ ...s, make: e }))}
+            {...multiSelectProps}
+          />
 
           {/* Model */}
-          <div>
-            <label className={labelBase}>Model</label>
-            <select
-              value={filters.model}
-              onChange={(e) => setFilters((s) => ({ ...s, model: e.target.value }))}
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {options.model.map((mo) => (
-                <option key={mo} value={mo}>
-                  {mo}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelBase}>Source</label>
-            <select
-              value={filters.source}
-              onChange={(e) =>
-                setFilters((s) => ({ ...s, source: e.target.value as FilterState['source'] }))
-              }
-              className={`mt-1 ${inputBase}`}
-            >
-              <option className={optionBase}>All</option>
-              {Array.from(options.source).map((so) => (
-                <option key={so} value={so}>
-                  {so}
-                </option>
-              ))}
-            </select>
-          </div>
+          <MultiSelect
+            label="Model"
+            placeholder="Select models..."
+            data={options.model}
+            value={filters.model}
+            onChange={(e) => setFilters((s) => ({ ...s, model: e }))}
+            {...multiSelectProps}
+          />
+
+          {/* Fuel Type */}
+          <MultiSelect
+            label="Fuel Type"
+            placeholder="Select fuel types..."
+            data={options.fuel}
+            value={filters.fuel}
+            onChange={(e) => setFilters((s) => ({ ...s, fuel: e }))}
+            {...multiSelectProps}
+          />
+
+          {/* Source */}
+          <MultiSelect
+            label="Source"
+            placeholder="Select source..."
+            data={options.source}
+            value={filters.source}
+            onChange={(e) => setFilters((s) => ({ ...s, source: e }))}
+            {...multiSelectProps}
+          />
+
           <hr />
+
           {/* Price */}
-          <div className="my-8 py-6">
+          <div className="my-8 py-4">
             <RangeSlider
               size="lg"
               minRange={500}
               min={options.priceMin - 1000}
               max={options.priceMax + 1000}
               step={1000}
-              label={(value) => `$${value}`}
+              label={(value) => `$${value.toLocaleString()}`}
               labelAlwaysOn
               value={[
                 filters.priceMin ?? options.priceMin - (options.priceMin % 1000),
@@ -222,14 +271,14 @@ export default function FilterBox({ items, onFiltered }: Props) {
           </div>
 
           {/* Mileage */}
-          <div className="pb-4">
+          <div className="pb-2">
             <RangeSlider
               size="lg"
               minRange={500}
               min={options.mileageMin - 1000}
               max={options.mileageMax + 1000}
               step={1000}
-              label={(value) => `${value} mi`}
+              label={(value) => `${value.toLocaleString()} mi`}
               labelAlwaysOn
               value={[
                 filters.mileageMin ?? options.mileageMin - (options.mileageMin % 1000),

@@ -12,6 +12,8 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>(search);
+  const [sortBy, setSortBy] = useState<'price' | 'mileage'>('price');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   // Note: Filter state is now owned by FilterBox. `filteredItems` contains items filtered by those controls.
 
   // Get inventory
@@ -62,24 +64,32 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   // apply search on top of the list produced by FilterBox
   const searchedItems = useMemo(() => {
     const q = debouncedSearch.trim().toLowerCase();
-    if (!q) return filteredItems.length ? filteredItems : items;
     const source = filteredItems.length ? filteredItems : items;
-    return source.filter((v) => {
-      const hay = [
-        String(v.year),
-        v.make,
-        v.model,
-        v.trim || '',
-        v.vin || '',
-        v.stk || '',
-        String(v.price || ''),
-        String(v.mileage || ''),
-      ]
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(q);
+
+    const filtered = q
+      ? source.filter((v) => {
+          const hay = [
+            String(v.year),
+            v.make,
+            v.model,
+            v.trim || '',
+            v.vin || '',
+            v.stk || '',
+            String(v.price || ''),
+            String(v.mileage || ''),
+          ]
+            .join(' ')
+            .toLowerCase();
+          return hay.includes(q);
+        })
+      : source;
+
+    return [...filtered].sort((a, b) => {
+      const aValue = Number(String(a[sortBy]).replace(/[^0-9.-]+/g, '')) || 0;
+      const bValue = Number(String(b[sortBy]).replace(/[^0-9.-]+/g, '')) || 0;
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
-  }, [items, filteredItems, debouncedSearch]);
+  }, [items, filteredItems, debouncedSearch, sortBy, sortDirection]);
 
   return (
     <div className="min-h-screen w-full flex items-start justify-center">
@@ -97,7 +107,16 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
 
       <main className="flex flex-col md:flex-row w-screen mx-auto pt-16 md:pt-20">
         <aside>
-          <FilterBox items={items} onFiltered={setFilteredItems} />
+          <FilterBox
+            items={items}
+            onFiltered={setFilteredItems}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortChange={(nextSortBy, nextSortDirection) => {
+              setSortBy(nextSortBy);
+              setSortDirection(nextSortDirection);
+            }}
+          />
         </aside>
         <div className="px-8">
           {loading ? <div>Loading inventory…</div> : ''}
