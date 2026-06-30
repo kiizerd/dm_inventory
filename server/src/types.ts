@@ -10,5 +10,5 @@ export interface Vehicle {
   link: string;
   image: string | undefined;
   fuel?: string;
-  source: 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr';
+  source: 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr' | 'apple' | 'houston';
 }
