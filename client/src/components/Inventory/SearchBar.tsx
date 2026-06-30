@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react';
+import { IconX } from '@tabler/icons-react';
 
 type Props = {
   search: string;
@@ -39,17 +40,17 @@ export default function SearchBar({
               <button
                 onClick={onClear}
                 aria-label="Clear search"
-                className="absolute text-xs right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 px-2 py-px"
+                className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-gray-400 hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                 type="button"
               >
-                {/* × */}X
+                <IconX size={16} />
               </button>
             )}
           </div>
         </div>
-        <div className="text-sm text-gray-300">
+        <div className="whitespace-nowrap text-sm text-gray-300">
           {typeof resultsCount === 'number' && typeof totalCount === 'number'
-            ? `${resultsCount} / ${totalCount} results`
+            ? `${resultsCount} of ${totalCount} vehicles`
             : ''}
         </div>
       </div>
