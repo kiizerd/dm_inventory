@@ -30,7 +30,7 @@ export default function InventoryGrid({ items }: Props) {
         <div className="space-y-3">
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {pagedItems.map((v) => (
-              <InventoryCard key={v.stk} vehicle={v} />
+              <InventoryCard key={v.vin || `${v.source}-${v.stk}`} vehicle={v} />
             ))}
           </div>
 

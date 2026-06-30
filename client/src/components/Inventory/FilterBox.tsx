@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Button,
+  Divider,
   MultiSelect,
   NativeSelect,
   RangeSlider,
@@ -165,11 +166,7 @@ export default function FilterBox({
         <div
           className={`filter-body p-4 pt-2 space-y-2 md:space-y-4 bg-gray-900/80 border border-gray-700 rounded
             transform transition duration-300 ease-in-out
-            ${
-              open
-                ? 'translate-x-0 opacity-100 scale-none'
-                : '-translate-x-full opacity-0 -scale-x-3'
-            }`}
+            ${open ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'}`}
         >
           <div className="flex items-center justify-start gap-4">
             <p className="font-semibold text-gray-100">Filters</p>
@@ -178,10 +175,9 @@ export default function FilterBox({
             </Button>
           </div>
 
-          <Text size="sm" className="text-gray-200">Sort</Text>
           <NativeSelect
             size="sm"
-            label=""
+            label="Sort"
             description=""
             data={[
               { label: 'Price (Ascending)', value: 'price-asc' },
@@ -193,7 +189,7 @@ export default function FilterBox({
             onChange={(event) => {
               const [nextSortBy, nextSortDirection] = event.currentTarget.value.split('-') as [
                 'price' | 'mileage',
-                'asc' | 'desc'
+                'asc' | 'desc',
               ];
               onSortChange(nextSortBy, nextSortDirection);
             }}
@@ -249,11 +245,13 @@ export default function FilterBox({
             {...multiSelectProps}
           />
 
-          <hr />
+          <Divider />
 
           {/* Price */}
-          <div className="my-8 py-4">
+          <div className="pt-2 pb-2">
+            <Text size="sm">Price</Text>
             <RangeSlider
+              className="mt-7"
               size="lg"
               minRange={500}
               min={options.priceMin - 1000}
@@ -269,12 +267,13 @@ export default function FilterBox({
                 setFilters((s) => ({ ...s, priceMin: price[0], priceMax: price[1] }));
               }}
             />
-            <Text size="sm">Price</Text>
           </div>
 
           {/* Mileage */}
-          <div className="pb-2">
+          <div className="pt-2 pb-2">
+            <Text size="sm">Mileage</Text>
             <RangeSlider
+              className="mt-7"
               size="lg"
               minRange={500}
               min={options.mileageMin - 1000}
@@ -290,7 +289,6 @@ export default function FilterBox({
                 setFilters((s) => ({ ...s, mileageMin: price[0], mileageMax: price[1] }));
               }}
             />
-            <Text size="sm">Mileage</Text>
           </div>
         </div>
       </div>

@@ -17,7 +17,7 @@ function toSortNumber(value: string | undefined): number {
 
 export default function Inventory({ endpoint = '/api/inventory' }) {
   const [items, setItems] = useState<Vehicle[]>([]);
-  const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Vehicle[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
@@ -74,7 +74,9 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   // apply search on top of the list produced by FilterBox
   const searchedItems = useMemo(() => {
     const q = debouncedSearch.trim().toLowerCase();
-    const source = filteredItems.length ? filteredItems : items;
+    // `null` = FilterBox hasn't reported yet -> show everything. A real `[]` means
+    // the active filters matched zero vehicles and must be respected (empty state).
+    const source = filteredItems ?? items;
 
     const filtered = q
       ? source.filter((v) => {
@@ -94,7 +96,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
         })
       : source;
 
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       const aValue = toSortNumber(a[sortBy]);
       const bValue = toSortNumber(b[sortBy]);
       const aInvalid = Number.isNaN(aValue);
@@ -106,19 +108,33 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
       }
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
+
+    // De-duplicate by VIN, falling back to source+stk so VIN-less cars aren't collapsed.
+    const seen = new Set<string>();
+    const deduped: Vehicle[] = [];
+    for (const v of sorted) {
+      const key = v.vin || `${v.source}-${v.stk}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped.push(v);
+    }
+    return deduped;
   }, [items, filteredItems, debouncedSearch, sortBy, sortDirection]);
 
   return (
     <div className="min-h-screen w-full flex items-start justify-center">
       <header className="fixed inset-x-0 top-0 bg-gray-900/80 backdrop-blur z-40">
-        <div className="container mx-auto px-4 py-3">
-          <SearchBar
-            search={search}
-            onSearchChange={setSearch}
-            onClear={() => setSearch('')}
-            // resultsCount={filteredItems.length}
-            // totalCount={items.length}
-          />
+        <div className="container mx-auto flex items-center gap-4 px-4 py-3">
+          <span className="whitespace-nowrap font-semibold text-gray-100">DM Inventory</span>
+          <div className="flex-1">
+            <SearchBar
+              search={search}
+              onSearchChange={setSearch}
+              onClear={() => setSearch('')}
+              resultsCount={searchedItems.length}
+              totalCount={items.length}
+            />
+          </div>
         </div>
       </header>
 
@@ -136,13 +152,17 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
           />
         </aside>
         <div className="px-8">
-          {loading ? <div>Loading inventory…</div> : ''}
-          {error ? <div>Error: {error}</div> : ''}
-          <InventoryGrid
-            items={searchedItems.filter(
-              (obj, index, self) => index === self.findIndex((o) => o.vin === obj.vin),
-            )}
-          />
+          {loading ? (
+            <div role="status" className="pt-6 text-gray-400">
+              Loading inventory…
+            </div>
+          ) : error ? (
+            <div role="alert" className="pt-6 text-red-300">
+              Error: {error}
+            </div>
+          ) : (
+            <InventoryGrid items={searchedItems} />
+          )}
         </div>
       </main>
     </div>
