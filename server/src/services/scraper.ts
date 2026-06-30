@@ -1,5 +1,7 @@
 import { scrapeFourStars } from '../scrapers/fourStars';
 import { scrapeDLR } from '../scrapers/dlr';
+import { scrapeApple } from '../scrapers/apple';
+import { scrapeHouston } from '../scrapers/houston';
 import { Vehicle } from '../types';
 
 export class ScrapingService {
@@ -10,6 +12,8 @@ export class ScrapingService {
       scrapeFourStars('toyota'),
       scrapeFourStars('dodge'),
       scrapeDLR(),
+      scrapeApple(),
+      scrapeHouston(),
     ]);
 
     const inventory: Vehicle[] = results

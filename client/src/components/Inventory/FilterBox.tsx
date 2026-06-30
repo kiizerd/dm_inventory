@@ -82,6 +82,8 @@ export default function FilterBox({
         { value: 'toyota', label: 'Toyota' },
         { value: 'nissan', label: 'Nissan' },
         { value: 'dlr', label: 'DLR' },
+        { value: 'apple', label: 'Apple' },
+        { value: 'houston', label: 'Houston' },
       ],
     } as FilterOptions;
 
