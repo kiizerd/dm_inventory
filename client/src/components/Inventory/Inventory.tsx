@@ -5,6 +5,16 @@ import SearchBar from './SearchBar.tsx';
 import FilterBox from './FilterBox.tsx';
 import type { Vehicle } from '../../types.ts';
 
+// Parse a display string like "$23,015" or "70,119 mi" into a sortable number.
+// Returns NaN for values with no real figure (e.g. "N/A", "Call for Price") so the
+// comparator can push them to the end of the list in either sort direction.
+function toSortNumber(value: string | undefined): number {
+  const raw = String(value ?? '');
+  if (!/\d/.test(raw)) return NaN;
+  const n = Number(raw.replace(/[^0-9.-]+/g, ''));
+  return Number.isFinite(n) ? n : NaN;
+}
+
 export default function Inventory({ endpoint = '/api/inventory' }) {
   const [items, setItems] = useState<Vehicle[]>([]);
   const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
@@ -85,8 +95,15 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
       : source;
 
     return [...filtered].sort((a, b) => {
-      const aValue = Number(String(a[sortBy]).replace(/[^0-9.-]+/g, '')) || 0;
-      const bValue = Number(String(b[sortBy]).replace(/[^0-9.-]+/g, '')) || 0;
+      const aValue = toSortNumber(a[sortBy]);
+      const bValue = toSortNumber(b[sortBy]);
+      const aInvalid = Number.isNaN(aValue);
+      const bInvalid = Number.isNaN(bValue);
+      // Vehicles without a real price/mileage always sink to the end, in both directions.
+      if (aInvalid || bInvalid) {
+        if (aInvalid && bInvalid) return 0;
+        return aInvalid ? 1 : -1;
+      }
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
   }, [items, filteredItems, debouncedSearch, sortBy, sortDirection]);
