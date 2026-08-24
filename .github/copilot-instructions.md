@@ -11,6 +11,8 @@ This repository is a small monorepo with:
 - Build server: `cd server && npm run build`
 - Format files: `npm run format`
 
+Railway deploys from the `origin/server` and `origin/client` branches. Push verified changes to both branches when deploying.
+
 ## Key files
 - `server/src/index.ts` — server bootstrap and route mounting
 - `server/src/routes/inventory.ts` — inventory API response and cache behavior

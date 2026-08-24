@@ -27,6 +27,10 @@ There are **no npm workspaces**. `client/` and `server/` install and run indepen
 - `npm run format` — `prettier --write .`
 - `npm run format:check` — `prettier --check .`
 
+**Railway deployment**
+
+- Railway deploys from the `origin/server` and `origin/client` branches; push verified changes to both branches when deploying.
+
 ## Architecture
 
 **Server** (`server/src/`)
