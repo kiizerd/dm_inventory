@@ -12,6 +12,7 @@ interface DealerSyncVehicle {
   PriceDisplay: string;
   Mileage: number;
   Fuel?: string;
+  BodyStyle?: string;
   Vin: string;
   StockNo: string;
   VehicleDetailUrl: string;
@@ -52,6 +53,7 @@ function mapVehicle(item: DealerSyncVehicle, urlBase: string, source: Vehicle['s
     link: urlBase + (item.VehicleDetailUrl ?? ''),
     image: item.FirstImageUrl,
     fuel: normalizeFuelType(item.Fuel),
+    bodyStyle: typeof item.BodyStyle === 'string' ? item.BodyStyle : undefined,
     source,
   };
 }

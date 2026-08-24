@@ -9,6 +9,7 @@ interface FourStarsVehicleCard {
   Mileage: string;
   VehicleFuelType?: string;
   VehicleEngine?: string;
+  VehicleBodyStyle?: string;
   VehicleVin: string;
   VehicleStockNumber: string;
   VehicleDetailUrl: string;
@@ -50,11 +51,14 @@ export async function scrapeFourStars(
   console.log(`Scraping ${store[0]?.toUpperCase() + store.slice(1)}...`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText} for ${url}`);
     const data = (await response.json()) as FourStarsResponse;
     const vehicles: Vehicle[] = [];
-    data.DisplayCards.forEach((displayCard) => {
+    const displayCards = Array.isArray(data?.DisplayCards) ? data.DisplayCards : [];
+    displayCards.forEach((displayCard) => {
       const item = displayCard.VehicleCard;
+      if (!item) return;
 
       // Extract price from nested HTML content
       const priceHtml =
@@ -73,8 +77,11 @@ export async function scrapeFourStars(
         vin: item.VehicleVin,
         stk: item.VehicleStockNumber,
         link: item.VehicleDetailUrl,
-        image: urlBase + item.VehicleImageModel.VehiclePhotoSrc,
+        image: item.VehicleImageModel?.VehiclePhotoSrc
+          ? urlBase + item.VehicleImageModel.VehiclePhotoSrc
+          : undefined,
         fuel: normalizeFuelType(item.VehicleFuelType || item.VehicleEngine),
+        bodyStyle: typeof item.VehicleBodyStyle === 'string' ? item.VehicleBodyStyle : undefined,
         source: store,
       });
     });

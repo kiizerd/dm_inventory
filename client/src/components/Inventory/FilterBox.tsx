@@ -14,9 +14,12 @@ import type { Vehicle } from '../../types';
 type Props = {
   items: Vehicle[];
   onFiltered: (items: Vehicle[]) => void;
-  sortBy: 'price' | 'mileage';
+  sortBy: 'price' | 'mileage' | 'bodyStyle';
   sortDirection: 'asc' | 'desc';
-  onSortChange: (sortBy: 'price' | 'mileage', sortDirection: 'asc' | 'desc') => void;
+  onSortChange: (
+    sortBy: 'price' | 'mileage' | 'bodyStyle',
+    sortDirection: 'asc' | 'desc',
+  ) => void;
 };
 
 type FilterState = {
@@ -188,12 +191,14 @@ export default function FilterBox({
               { label: 'Price (Descending)', value: 'price-desc' },
               { label: 'Mileage (Ascending)', value: 'mileage-asc' },
               { label: 'Mileage (Descending)', value: 'mileage-desc' },
+              { label: 'Body Style (A-Z)', value: 'bodyStyle-asc' },
+              { label: 'Body Style (Z-A)', value: 'bodyStyle-desc' },
             ]}
             value={`${sortBy}-${sortDirection}`}
             onChange={(event) => {
               const [nextSortBy, nextSortDirection] = event.currentTarget.value.split('-') as [
-                'price' | 'mileage',
-                'asc' | 'desc'
+                'price' | 'mileage' | 'bodyStyle',
+                'asc' | 'desc',
               ];
               onSortChange(nextSortBy, nextSortDirection);
             }}

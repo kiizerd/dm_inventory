@@ -22,7 +22,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>(search);
-  const [sortBy, setSortBy] = useState<'price' | 'mileage'>('price');
+  const [sortBy, setSortBy] = useState<'price' | 'mileage' | 'bodyStyle'>('price');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   // Note: Filter state is now owned by FilterBox. `filteredItems` contains items filtered by those controls.
 
@@ -95,6 +95,17 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
       : source;
 
     return [...filtered].sort((a, b) => {
+      if (sortBy === 'bodyStyle') {
+        const aValue = a.bodyStyle?.trim() || '';
+        const bValue = b.bodyStyle?.trim() || '';
+        if (!aValue || !bValue) {
+          if (!aValue && !bValue) return 0;
+          return !aValue ? 1 : -1;
+        }
+        const comparison = aValue.localeCompare(bValue);
+        return sortDirection === 'asc' ? comparison : -comparison;
+      }
+
       const aValue = toSortNumber(a[sortBy]);
       const bValue = toSortNumber(b[sortBy]);
       const aInvalid = Number.isNaN(aValue);
