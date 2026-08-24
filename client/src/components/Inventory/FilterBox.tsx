@@ -86,6 +86,7 @@ export default function FilterBox({
       source: [
         { value: 'ford', label: 'Ford' },
         { value: 'dodge', label: 'Dodge' },
+        { value: 'chevrolet', label: 'Chevrolet' },
         { value: 'toyota', label: 'Toyota' },
         { value: 'nissan', label: 'Nissan' },
         { value: 'dlr', label: 'DLR' },

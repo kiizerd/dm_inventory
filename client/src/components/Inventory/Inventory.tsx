@@ -4,6 +4,15 @@ import InventoryGrid from './InventoryGrid';
 import SearchBar from './SearchBar.tsx';
 import FilterBox from './FilterBox.tsx';
 import type { Vehicle } from '../../types.ts';
+import { SegmentedControl } from '@mantine/core';
+
+type InventoryPage = 'new' | 'pre-owned';
+
+type Props = {
+  endpoint?: string;
+  page?: InventoryPage;
+  onPageChange?: (page: InventoryPage) => void;
+};
 
 // Parse a display string like "$23,015" or "70,119 mi" into a sortable number.
 // Returns NaN for values with no real figure (e.g. "N/A", "Call for Price") so the
@@ -15,7 +24,11 @@ function toSortNumber(value: string | undefined): number {
   return Number.isFinite(n) ? n : NaN;
 }
 
-export default function Inventory({ endpoint = '/api/inventory' }) {
+export default function Inventory({
+  endpoint = '/api/inventory',
+  page = 'pre-owned',
+  onPageChange,
+}: Props) {
   const [items, setItems] = useState<Vehicle[]>([]);
   const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -122,13 +135,25 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
   return (
     <div className="min-h-screen w-full flex items-start justify-center">
       <header className="fixed inset-x-0 top-0 bg-gray-900/80 backdrop-blur z-40">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
           <SearchBar
             search={search}
             onSearchChange={setSearch}
             onClear={() => setSearch('')}
+            className="flex-1"
             // resultsCount={filteredItems.length}
             // totalCount={items.length}
+          />
+          <SegmentedControl
+            aria-label="Inventory page"
+            value={page}
+            onChange={(value) => onPageChange?.(value as InventoryPage)}
+            data={[
+              { label: 'New', value: 'new' },
+              { label: 'Pre-Owned', value: 'pre-owned' },
+            ]}
+            size="sm"
+            color="indigo"
           />
         </div>
       </header>
@@ -136,6 +161,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
       <main className="flex flex-col md:flex-row w-screen mx-auto pt-16 md:pt-20">
         <aside>
           <FilterBox
+            key={endpoint}
             items={items}
             onFiltered={setFilteredItems}
             sortBy={sortBy}
@@ -150,6 +176,7 @@ export default function Inventory({ endpoint = '/api/inventory' }) {
           {loading ? <div>Loading inventory…</div> : ''}
           {error ? <div>Error: {error}</div> : ''}
           <InventoryGrid
+            isNew={page === 'new'}
             items={searchedItems.filter(
               (obj, index, self) => index === self.findIndex((o) => o.vin === obj.vin),
             )}

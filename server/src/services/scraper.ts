@@ -1,4 +1,4 @@
-import { scrapeFourStars } from '../scrapers/fourStars';
+import { scrapeFourStars, scrapeFourStarsNew } from '../scrapers/fourStars';
 import { scrapeDLR } from '../scrapers/dlr';
 import { scrapeApple } from '../scrapers/apple';
 import { scrapeHouston } from '../scrapers/houston';
@@ -29,6 +29,27 @@ export class ScrapingService {
       });
 
     return inventory;
+  }
+
+  async runNew(): Promise<Vehicle[]> {
+    const results = await Promise.allSettled([
+      scrapeFourStarsNew('ford'),
+      scrapeFourStarsNew('chevrolet'),
+      scrapeFourStarsNew('dodge'),
+      scrapeFourStarsNew('toyota'),
+      scrapeFourStarsNew('nissan'),
+    ]);
+
+    return results
+      .filter((result): result is PromiseFulfilledResult<Vehicle[]> => result.status === 'fulfilled')
+      .flatMap((result) => result.value)
+      .sort((a, b) => {
+        const priceA = Number(a.price.replace(/\D+/g, ''));
+        const priceB = Number(b.price.replace(/\D+/g, ''));
+        if (!Number.isFinite(priceA)) return 1;
+        if (!Number.isFinite(priceB)) return -1;
+        return priceA - priceB;
+      });
   }
 }
 

@@ -16,8 +16,11 @@ Railway deploys from the `origin/server` and `origin/client` branches. Push veri
 ## Key files
 - `server/src/index.ts` — server bootstrap and route mounting
 - `server/src/routes/inventory.ts` — inventory API response and cache behavior
+- `server/src/routes/newInventory.ts` — new vehicle inventory API response and cache behavior
 - `server/src/services/scraper.ts` — scraper orchestration
 - `server/src/cache/inventoryCache.ts` — cached inventory data
+- `server/src/cache/newInventoryCache.ts` — in-memory new inventory cache
+- `server/src/scrapers/fourStars.ts` — FourStars new and pre-owned scrapers
 - `client/src/components/Inventory/Inventory.tsx` — fetches inventory and wires search/filter UI
 - `client/src/components/Inventory/InventoryGrid.tsx` — inventory grid rendering
 - `client/src/components/Inventory/FilterBox.tsx` and `SearchBar.tsx` — filter/search controls
@@ -28,7 +31,25 @@ Railway deploys from the `origin/server` and `origin/client` branches. Push veri
 - Prefer defensive handling for scraper output because page data can be missing or inconsistent.
 - If you change API behavior, update the related UI fetch logic and any cache assumptions.
 - Avoid introducing framework-specific assumptions that do not match this Vite + React setup.
+- Finish all implementation changes for the current prompt before running builds, tests, lint, or other validation commands.
+- Client and server dependencies are installed independently; there are no npm workspaces.
+- Railway deploys from the `origin/server` and `origin/client` branches when deploying.
+
+## API contract
+- `GET /api/inventory` serves pre-owned inventory.
+- `GET /api/new-inventory` serves new FourStars inventory.
+- Both endpoints return `{ inventory, count, cached, timestamp }`.
+- The `Vehicle` interface in `client/src/types.ts` and `server/src/types.ts` must remain identical.
+- FourStars new sources include Ford, Chevrolet (Ranch GM), Dodge (Ranch CDJR), Toyota, and Nissan.
+
+## Scraper rules
+- Scrapers must handle drifting or missing page fields defensively and return `[]` on failure.
+- Use `Promise.allSettled` so one dealer failure does not break the rest of an inventory response.
+- Preserve the correct `Vehicle.source` literal in both client and server type unions when adding a source.
+- FourStars pre-owned and new feeds must filter cards by their `VehicleType` or `VehicleCondition`.
 
 ## Verification
-- There are no automated tests in this repo today, so verify UI and API changes by running the relevant dev servers and checking the affected flows manually.
+- Run validation only after the current prompt's edits are complete; then use the narrowest relevant build, test, lint, or manual flow check.
+- Server validation: `cd server && npm run build && npm test`.
+- Client validation: `cd client && npm run build && npm run lint`.
 - Scraper code is network-dependent and may be flaky; handle failures gracefully and avoid breaking the API contract.

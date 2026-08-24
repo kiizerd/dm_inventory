@@ -11,5 +11,13 @@ export interface Vehicle {
   image: string | undefined;
   fuel?: string;
   bodyStyle?: string | undefined;
-  source: 'ford' | 'dodge' | 'toyota' | 'nissan' | 'dlr' | 'apple' | 'houston';
+  source:
+    | 'ford'
+    | 'dodge'
+    | 'toyota'
+    | 'nissan'
+    | 'dlr'
+    | 'apple'
+    | 'houston'
+    | 'chevrolet';
 }

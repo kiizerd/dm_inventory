@@ -1,7 +1,7 @@
 import { Image, Title, Paper } from '@mantine/core';
 import type { Vehicle } from '../../types';
 
-export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
+export default function InventoryCard({ vehicle, isNew = false }: { vehicle: Vehicle; isNew?: boolean }) {
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}`.trim();
   const metaText = 'text-xs text-gray-400';
 
@@ -25,7 +25,7 @@ export default function InventoryCard({ vehicle }: { vehicle: Vehicle }) {
 
           <div className="mt-1 flex items-baseline gap-3">
             <span className="text-lg font-bold text-emerald-300">{vehicle.price}</span>
-            <span className="text-sm text-gray-300">{vehicle.mileage}</span>
+            {!isNew && <span className="text-sm text-gray-300">{vehicle.mileage}</span>}
           </div>
 
           <div className="mt-3 flex items-center justify-between">

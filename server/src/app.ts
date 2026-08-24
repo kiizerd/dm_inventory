@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import inventoryRoute from './routes/inventory';
+import newInventoryRoute from './routes/newInventory';
 
 export function createApp() {
   const app = express();
@@ -27,6 +28,7 @@ export function createApp() {
   });
 
   app.use('/api/inventory', inventoryRoute);
+  app.use('/api/new-inventory', newInventoryRoute);
 
   return app;
 }
