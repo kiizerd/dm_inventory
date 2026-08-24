@@ -61,6 +61,34 @@ const defaultFilter: FilterState = {
   source: [],
 };
 
+function matchesFilters(item: Vehicle, filters: FilterState, excludedFilter?: keyof FilterState) {
+  const { year, make, model, bodyStyle, fuel, priceMin, priceMax, mileageMin, mileageMax, source } =
+    filters;
+
+  if (excludedFilter !== 'year' && year.length !== 0 && !year.includes(item.year)) return false;
+  if (excludedFilter !== 'make' && make.length !== 0 && !make.includes(item.make)) return false;
+  if (excludedFilter !== 'model' && model.length !== 0 && !model.includes(item.model)) return false;
+  if (
+    excludedFilter !== 'bodyStyle' &&
+    bodyStyle.length !== 0 &&
+    !(item.bodyStyle && bodyStyle.includes(item.bodyStyle))
+  )
+    return false;
+  if (excludedFilter !== 'fuel' && fuel.length !== 0 && !(item.fuel && fuel.includes(item.fuel)))
+    return false;
+  if (excludedFilter !== 'source' && source.length !== 0 && !source.includes(item.source)) return false;
+
+  const priceNum = Number(String(item.price).replace(/[^0-9.-]+/g, '')) || 0;
+  if (excludedFilter !== 'priceMin' && priceMin !== null && priceNum < priceMin) return false;
+  if (excludedFilter !== 'priceMax' && priceMax !== null && priceNum > priceMax) return false;
+
+  const mileageNum = Number(String(item.mileage).replace(/[^0-9.-]+/g, '')) || 0;
+  if (excludedFilter !== 'mileageMin' && mileageMin !== null && mileageNum < mileageMin) return false;
+  if (excludedFilter !== 'mileageMax' && mileageMax !== null && mileageNum > mileageMax) return false;
+
+  return true;
+}
+
 export default function FilterBox({
   items,
   onFiltered,
@@ -71,43 +99,46 @@ export default function FilterBox({
   const [filters, setFilters] = useState<FilterState>(defaultFilter);
   const [open, setOpen] = useState<boolean>(true);
 
-  // derive select options from incoming FILTERED items (years/makes/models)
+  // Derive each dropdown's options from items matching every other active filter.
   const options = useMemo(() => {
+    const getItemsFor = (filter: keyof FilterState) =>
+      items.filter((item) => matchesFilters(item, filters, filter));
     const result = {
-      year: [],
-      make: [],
-      model: [],
-      bodyStyle: [],
-      fuel: [],
+      year: [] as string[],
+      make: [] as string[],
+      model: [] as string[],
+      bodyStyle: [] as string[],
+      fuel: [] as Array<{ value: string; label: string }>,
       priceMin: -1,
       priceMax: 0,
       mileageMin: -1,
       mileageMax: 0,
-      source: [
-        { value: 'ford', label: 'Ford' },
-        { value: 'dodge', label: 'Dodge' },
-        { value: 'chevrolet', label: 'Chevrolet' },
-        { value: 'toyota', label: 'Toyota' },
-        { value: 'nissan', label: 'Nissan' },
-        { value: 'dlr', label: 'DLR' },
-        { value: 'apple', label: 'Apple' },
-        { value: 'houston', label: 'Houston' },
-      ],
+      source: [],
     } as FilterOptions;
 
-    items.forEach((item) => {
-      if (!result.year.includes(item.year)) result.year.push(item.year);
-      if (!result.make.includes(item.make)) result.make.push(item.make);
-      if (!result.model.includes(item.model)) result.model.push(item.model);
-      if (item.bodyStyle && !result.bodyStyle.includes(item.bodyStyle)) {
-        result.bodyStyle.push(item.bodyStyle);
-      }
-      if (item.fuel) {
-        const fuelLabel = item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1);
-        if (!result.fuel.some((entry) => entry.value === item.fuel)) {
-          result.fuel.push({ value: item.fuel, label: fuelLabel });
+    const addOptions = (filter: keyof FilterState, sourceItems: Vehicle[]) => {
+      sourceItems.forEach((item) => {
+        if (filter === 'year' && !result.year.includes(item.year)) result.year.push(item.year);
+        if (filter === 'make' && !result.make.includes(item.make)) result.make.push(item.make);
+        if (filter === 'model' && !result.model.includes(item.model)) result.model.push(item.model);
+        if (filter === 'bodyStyle' && item.bodyStyle && !result.bodyStyle.includes(item.bodyStyle)) {
+          result.bodyStyle.push(item.bodyStyle);
         }
-      }
+        if (filter === 'fuel' && item.fuel) {
+          const fuelLabel = item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1);
+          if (!result.fuel.some((entry) => entry.value === item.fuel)) {
+            result.fuel.push({ value: item.fuel, label: fuelLabel });
+          }
+        }
+        if (filter === 'source' && !result.source.some((entry) => entry.value === item.source)) {
+          const sourceLabel = item.source === 'dlr' ? 'DLR' : item.source.charAt(0).toUpperCase() + item.source.slice(1);
+          result.source.push({ value: item.source, label: sourceLabel });
+        }
+      });
+    };
+
+    const sourceItems = getItemsFor('source');
+    sourceItems.forEach((item) => {
       const price = Number(item.price.replace(/[^0-9.-]+/g, ''));
       if ((result.priceMin > price && price != 0) || result.priceMin == -1) result.priceMin = price;
       if (result.priceMax < price) result.priceMax = price;
@@ -118,6 +149,13 @@ export default function FilterBox({
       if (result.mileageMax < mileage) result.mileageMax = mileage;
     });
 
+    addOptions('year', getItemsFor('year'));
+    addOptions('make', getItemsFor('make'));
+    addOptions('model', getItemsFor('model'));
+    addOptions('bodyStyle', getItemsFor('bodyStyle'));
+    addOptions('fuel', getItemsFor('fuel'));
+    addOptions('source', getItemsFor('source'));
+
     result.year.sort().reverse();
     result.make.sort();
     result.model.sort();
@@ -125,30 +163,11 @@ export default function FilterBox({
     result.fuel.sort((a, b) => a.label.localeCompare(b.label));
 
     return result;
-  }, [items]);
+  }, [items, filters]);
 
   // compute filtered items whenever filters or items change
   useEffect(() => {
-    const { year, make, model, bodyStyle, fuel, priceMin, priceMax, mileageMin, mileageMax, source } =
-      filters;
-    const filtered = items.filter((v: Vehicle) => {
-      if (year.length !== 0 && !year.includes(v.year)) return false;
-      if (make.length !== 0 && !make.includes(v.make)) return false;
-      if (model.length !== 0 && !model.includes(v.model)) return false;
-      if (bodyStyle.length !== 0 && !(v.bodyStyle && bodyStyle.includes(v.bodyStyle))) return false;
-      if (fuel.length !== 0 && !(v.fuel && fuel.includes(v.fuel))) return false;
-      if (source.length !== 0 && !source.includes(v.source)) return false;
-
-      const priceNum = Number(String(v.price).replace(/[^0-9.-]+/g, '')) || 0;
-      if (priceMin !== null && priceNum < priceMin) return false;
-      if (priceMax !== null && priceNum > priceMax) return false;
-
-      const mileageNum = Number(String(v.mileage).replace(/[^0-9.-]+/g, '')) || 0;
-      if (mileageMin !== null && mileageNum < mileageMin) return false;
-      if (mileageMax !== null && mileageNum > mileageMax) return false;
-
-      return true;
-    });
+    const filtered = items.filter((item) => matchesFilters(item, filters));
 
     onFiltered(filtered);
   }, [items, filters, onFiltered]);
