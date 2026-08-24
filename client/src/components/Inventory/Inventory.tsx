@@ -177,6 +177,7 @@ export default function Inventory({
           <FilterBox
             key={endpoint}
             items={items}
+            isNew={page === 'new'}
             onFiltered={handleFiltered}
             sortBy={sortBy}
             sortDirection={sortDirection}

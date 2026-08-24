@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActionIcon,
   Button,
@@ -13,6 +13,7 @@ import type { Vehicle } from '../../types';
 
 type Props = {
   items: Vehicle[];
+  isNew?: boolean;
   onFiltered: (items: Vehicle[]) => void;
   sortBy: 'price' | 'mileage' | 'bodyStyle';
   sortDirection: 'asc' | 'desc';
@@ -61,36 +62,43 @@ const defaultFilter: FilterState = {
   source: [],
 };
 
-function matchesFilters(item: Vehicle, filters: FilterState, excludedFilter?: keyof FilterState) {
+function matchesFilters(
+  item: Vehicle,
+  filters: FilterState,
+  excludedFilter?: keyof FilterState | Array<keyof FilterState>,
+) {
   const { year, make, model, bodyStyle, fuel, priceMin, priceMax, mileageMin, mileageMax, source } =
     filters;
+  const isExcluded = (filter: keyof FilterState) =>
+    Array.isArray(excludedFilter) ? excludedFilter.includes(filter) : excludedFilter === filter;
 
-  if (excludedFilter !== 'year' && year.length !== 0 && !year.includes(item.year)) return false;
-  if (excludedFilter !== 'make' && make.length !== 0 && !make.includes(item.make)) return false;
-  if (excludedFilter !== 'model' && model.length !== 0 && !model.includes(item.model)) return false;
+  if (!isExcluded('year') && year.length !== 0 && !year.includes(item.year)) return false;
+  if (!isExcluded('make') && make.length !== 0 && !make.includes(item.make)) return false;
+  if (!isExcluded('model') && model.length !== 0 && !model.includes(item.model)) return false;
   if (
-    excludedFilter !== 'bodyStyle' &&
+    !isExcluded('bodyStyle') &&
     bodyStyle.length !== 0 &&
     !(item.bodyStyle && bodyStyle.includes(item.bodyStyle))
   )
     return false;
-  if (excludedFilter !== 'fuel' && fuel.length !== 0 && !(item.fuel && fuel.includes(item.fuel)))
+  if (!isExcluded('fuel') && fuel.length !== 0 && !(item.fuel && fuel.includes(item.fuel)))
     return false;
-  if (excludedFilter !== 'source' && source.length !== 0 && !source.includes(item.source)) return false;
+  if (!isExcluded('source') && source.length !== 0 && !source.includes(item.source)) return false;
 
   const priceNum = Number(String(item.price).replace(/[^0-9.-]+/g, '')) || 0;
-  if (excludedFilter !== 'priceMin' && priceMin !== null && priceNum < priceMin) return false;
-  if (excludedFilter !== 'priceMax' && priceMax !== null && priceNum > priceMax) return false;
+  if (!isExcluded('priceMin') && priceMin !== null && priceNum < priceMin) return false;
+  if (!isExcluded('priceMax') && priceMax !== null && priceNum > priceMax) return false;
 
   const mileageNum = Number(String(item.mileage).replace(/[^0-9.-]+/g, '')) || 0;
-  if (excludedFilter !== 'mileageMin' && mileageMin !== null && mileageNum < mileageMin) return false;
-  if (excludedFilter !== 'mileageMax' && mileageMax !== null && mileageNum > mileageMax) return false;
+  if (!isExcluded('mileageMin') && mileageMin !== null && mileageNum < mileageMin) return false;
+  if (!isExcluded('mileageMax') && mileageMax !== null && mileageNum > mileageMax) return false;
 
   return true;
 }
 
 export default function FilterBox({
   items,
+  isNew = false,
   onFiltered,
   sortBy,
   sortDirection,
@@ -98,6 +106,26 @@ export default function FilterBox({
 }: Props) {
   const [filters, setFilters] = useState<FilterState>(defaultFilter);
   const [open, setOpen] = useState<boolean>(true);
+  const [sliderResetKey, setSliderResetKey] = useState(0);
+  const priceSliderTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mileageSliderTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (priceSliderTimeout.current) clearTimeout(priceSliderTimeout.current);
+    if (mileageSliderTimeout.current) clearTimeout(mileageSliderTimeout.current);
+  }, []);
+
+  const updateSliderFilter = (filter: 'price' | 'mileage', values: [number, number]) => {
+    const timeout = filter === 'price' ? priceSliderTimeout : mileageSliderTimeout;
+    if (timeout.current) clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
+      setFilters((current) =>
+        filter === 'price'
+          ? { ...current, priceMin: values[0], priceMax: values[1] }
+          : { ...current, mileageMin: values[0], mileageMax: values[1] },
+      );
+    }, 250);
+  };
 
   // Derive each dropdown's options from items matching every other active filter.
   const options = useMemo(() => {
@@ -131,13 +159,20 @@ export default function FilterBox({
           }
         }
         if (filter === 'source' && !result.source.some((entry) => entry.value === item.source)) {
-          const sourceLabel = item.source === 'dlr' ? 'DLR' : item.source.charAt(0).toUpperCase() + item.source.slice(1);
+          const sourceLabel =
+            item.source === 'dlr'
+              ? 'DLR'
+              : item.source === 'dodge'
+                ? 'Ranch'
+                : item.source.charAt(0).toUpperCase() + item.source.slice(1);
           result.source.push({ value: item.source, label: sourceLabel });
         }
       });
     };
 
-    const sourceItems = getItemsFor('source');
+    const sourceItems = items.filter((item) =>
+      matchesFilters(item, filters, ['priceMin', 'priceMax', 'mileageMin', 'mileageMax']),
+    );
     sourceItems.forEach((item) => {
       const price = Number(item.price.replace(/[^0-9.-]+/g, ''));
       if ((result.priceMin > price && price != 0) || result.priceMin == -1) result.priceMin = price;
@@ -206,7 +241,16 @@ export default function FilterBox({
         >
           <div className="flex items-center justify-start gap-4">
             <p className="font-semibold text-gray-100">Filters</p>
-            <Button size="xs" variant="outline" onClick={() => setFilters(defaultFilter)}>
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={() => {
+                if (priceSliderTimeout.current) clearTimeout(priceSliderTimeout.current);
+                if (mileageSliderTimeout.current) clearTimeout(mileageSliderTimeout.current);
+                setSliderResetKey((key) => key + 1);
+                setFilters(defaultFilter);
+              }}
+            >
               Reset
             </Button>
           </div>
@@ -299,6 +343,7 @@ export default function FilterBox({
           {/* Price */}
           <div className="my-8 py-4">
             <RangeSlider
+              key={`price-slider-${sliderResetKey}`}
               size="lg"
               minRange={500}
               min={options.priceMin - 1000}
@@ -306,37 +351,36 @@ export default function FilterBox({
               step={1000}
               label={(value) => `$${value.toLocaleString()}`}
               labelAlwaysOn
-              value={[
+              defaultValue={[
                 filters.priceMin ?? options.priceMin - (options.priceMin % 1000),
                 filters.priceMax ?? options.priceMax + (options.priceMax % 1000),
               ]}
-              onChange={(price) => {
-                setFilters((s) => ({ ...s, priceMin: price[0], priceMax: price[1] }));
-              }}
+              onChangeEnd={(price) => updateSliderFilter('price', price)}
             />
             <Text size="sm">Price</Text>
           </div>
 
           {/* Mileage */}
-          <div className="pb-2">
-            <RangeSlider
-              size="lg"
-              minRange={500}
-              min={options.mileageMin - 1000}
-              max={options.mileageMax + 1000}
-              step={1000}
-              label={(value) => `${value.toLocaleString()} mi`}
-              labelAlwaysOn
-              value={[
-                filters.mileageMin ?? options.mileageMin - (options.mileageMin % 1000),
-                filters.mileageMax ?? options.mileageMax + (options.mileageMax % 1000),
-              ]}
-              onChange={(price) => {
-                setFilters((s) => ({ ...s, mileageMin: price[0], mileageMax: price[1] }));
-              }}
-            />
-            <Text size="sm">Mileage</Text>
-          </div>
+          {!isNew && (
+            <div className="pb-2">
+              <RangeSlider
+                key={`mileage-slider-${sliderResetKey}`}
+                size="lg"
+                minRange={500}
+                min={options.mileageMin - 1000}
+                max={options.mileageMax + 1000}
+                step={1000}
+                label={(value) => `${value.toLocaleString()} mi`}
+                labelAlwaysOn
+                defaultValue={[
+                  filters.mileageMin ?? options.mileageMin - (options.mileageMin % 1000),
+                  filters.mileageMax ?? options.mileageMax + (options.mileageMax % 1000),
+                ]}
+                onChangeEnd={(mileage) => updateSliderFilter('mileage', mileage)}
+              />
+              <Text size="sm">Mileage</Text>
+            </div>
+          )}
         </div>
       </div>
     </div>
