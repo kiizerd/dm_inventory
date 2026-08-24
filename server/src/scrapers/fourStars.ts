@@ -1,4 +1,5 @@
 import type { Vehicle } from '../types';
+import { normalizeBodyStyle } from '../services/bodyStyle';
 import { normalizeFuelType } from '../services/fuel';
 
 interface FourStarsVehicleCard {
@@ -57,7 +58,7 @@ export async function scrapeFourStars(
     const vehicles: Vehicle[] = [];
     const displayCards = Array.isArray(data?.DisplayCards) ? data.DisplayCards : [];
     displayCards.forEach((displayCard) => {
-      const item = displayCard.VehicleCard;
+      const item = displayCard?.VehicleCard;
       if (!item) return;
 
       // Extract price from nested HTML content
@@ -81,7 +82,7 @@ export async function scrapeFourStars(
           ? urlBase + item.VehicleImageModel.VehiclePhotoSrc
           : undefined,
         fuel: normalizeFuelType(item.VehicleFuelType || item.VehicleEngine),
-        bodyStyle: typeof item.VehicleBodyStyle === 'string' ? item.VehicleBodyStyle : undefined,
+        bodyStyle: normalizeBodyStyle(item.VehicleBodyStyle),
         source: store,
       });
     });

@@ -1,4 +1,5 @@
 import type { Vehicle } from '../types';
+import { normalizeBodyStyle } from '../services/bodyStyle';
 import { normalizeFuelType } from '../services/fuel';
 
 // DealerSync-powered "lease returns" sites (Dallas, Apple, Houston) all expose the
@@ -53,7 +54,7 @@ function mapVehicle(item: DealerSyncVehicle, urlBase: string, source: Vehicle['s
     link: urlBase + (item.VehicleDetailUrl ?? ''),
     image: item.FirstImageUrl,
     fuel: normalizeFuelType(item.Fuel),
-    bodyStyle: typeof item.BodyStyle === 'string' ? item.BodyStyle : undefined,
+    bodyStyle: normalizeBodyStyle(item.BodyStyle),
     source,
   };
 }
