@@ -1,5 +1,5 @@
 // import Refresh from "@/components/Refresh";
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import InventoryGrid from './InventoryGrid';
 import SearchBar from './SearchBar.tsx';
 import FilterBox from './FilterBox.tsx';
@@ -31,6 +31,7 @@ export default function Inventory({
 }: Props) {
   const [items, setItems] = useState<Vehicle[]>([]);
   const [filteredItems, setFilteredItems] = useState<Vehicle[]>([]);
+  const [filterReady, setFilterReady] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
@@ -41,6 +42,14 @@ export default function Inventory({
 
   // Get inventory
   useEffect(() => {
+    setItems([]);
+    setFilteredItems([]);
+    setFilterReady(false);
+    setSearch('');
+    setDebouncedSearch('');
+    setSortBy('price');
+    setSortDirection('asc');
+
     let aborted = false;
     const controller = new AbortController();
 
@@ -78,6 +87,11 @@ export default function Inventory({
     };
   }, [endpoint]);
 
+  const handleFiltered = useCallback((nextItems: Vehicle[]) => {
+    setFilteredItems(nextItems);
+    setFilterReady(true);
+  }, []);
+
   // debounce the search input to avoid filtering on every keystroke
   useEffect(() => {
     const id = window.setTimeout(() => setDebouncedSearch(search), 300);
@@ -87,7 +101,7 @@ export default function Inventory({
   // apply search on top of the list produced by FilterBox
   const searchedItems = useMemo(() => {
     const q = debouncedSearch.trim().toLowerCase();
-    const source = filteredItems.length ? filteredItems : items;
+    const source = filterReady ? filteredItems : items;
 
     const filtered = q
       ? source.filter((v) => {
@@ -130,7 +144,7 @@ export default function Inventory({
       }
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     });
-  }, [items, filteredItems, debouncedSearch, sortBy, sortDirection]);
+  }, [items, filteredItems, filterReady, debouncedSearch, sortBy, sortDirection]);
 
   return (
     <div className="min-h-screen w-full flex items-start justify-center">
@@ -163,7 +177,7 @@ export default function Inventory({
           <FilterBox
             key={endpoint}
             items={items}
-            onFiltered={setFilteredItems}
+            onFiltered={handleFiltered}
             sortBy={sortBy}
             sortDirection={sortDirection}
             onSortChange={(nextSortBy, nextSortDirection) => {
