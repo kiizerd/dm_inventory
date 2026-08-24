@@ -62,6 +62,15 @@ const defaultFilter: FilterState = {
   source: [],
 };
 
+const sliderStep = 1000;
+
+function getSliderBounds(minimum: number, maximum: number): [number, number] {
+  return [
+    Math.floor(minimum / sliderStep) * sliderStep - sliderStep,
+    Math.ceil(maximum / sliderStep) * sliderStep + sliderStep,
+  ];
+}
+
 function matchesFilters(
   item: Vehicle,
   filters: FilterState,
@@ -175,14 +184,24 @@ export default function FilterBox({
     );
     sourceItems.forEach((item) => {
       const price = Number(item.price.replace(/[^0-9.-]+/g, ''));
-      if ((result.priceMin > price && price != 0) || result.priceMin == -1) result.priceMin = price;
-      if (result.priceMax < price) result.priceMax = price;
+      if (Number.isFinite(price) && price > 0) {
+        if (result.priceMin > price || result.priceMin === -1) result.priceMin = price;
+        if (result.priceMax < price) result.priceMax = price;
+      }
 
       const mileage = Number(item.mileage.replace(/[^0-9.-]+/g, ''));
-      if ((result.mileageMin > mileage && mileage != 0) || result.mileageMin == -1)
-        result.mileageMin = mileage;
-      if (result.mileageMax < mileage) result.mileageMax = mileage;
+      if (Number.isFinite(mileage) && mileage > 0) {
+        if (result.mileageMin > mileage || result.mileageMin === -1) result.mileageMin = mileage;
+        if (result.mileageMax < mileage) result.mileageMax = mileage;
+      }
     });
+
+    if (result.priceMin > 0 && result.priceMax > 0) {
+      [result.priceMin, result.priceMax] = getSliderBounds(result.priceMin, result.priceMax);
+    }
+    if (result.mileageMin > 0 && result.mileageMax > 0) {
+      [result.mileageMin, result.mileageMax] = getSliderBounds(result.mileageMin, result.mileageMax);
+    }
 
     addOptions('year', getItemsFor('year'));
     addOptions('make', getItemsFor('make'));
@@ -343,17 +362,17 @@ export default function FilterBox({
           {/* Price */}
           <div className="my-8 py-4">
             <RangeSlider
-              key={`price-slider-${sliderResetKey}`}
+              key={`price-slider-${sliderResetKey}-${options.priceMin}-${options.priceMax}`}
               size="lg"
               minRange={500}
-              min={options.priceMin - 1000}
-              max={options.priceMax + 1000}
-              step={1000}
+              min={options.priceMin}
+              max={options.priceMax}
+              step={sliderStep}
               label={(value) => `$${value.toLocaleString()}`}
               labelAlwaysOn
               defaultValue={[
-                filters.priceMin ?? options.priceMin - (options.priceMin % 1000),
-                filters.priceMax ?? options.priceMax + (options.priceMax % 1000),
+                filters.priceMin ?? options.priceMin,
+                filters.priceMax ?? options.priceMax,
               ]}
               onChangeEnd={(price) => updateSliderFilter('price', price)}
             />
@@ -364,17 +383,17 @@ export default function FilterBox({
           {!isNew && (
             <div className="pb-2">
               <RangeSlider
-                key={`mileage-slider-${sliderResetKey}`}
+                key={`mileage-slider-${sliderResetKey}-${options.mileageMin}-${options.mileageMax}`}
                 size="lg"
                 minRange={500}
-                min={options.mileageMin - 1000}
-                max={options.mileageMax + 1000}
-                step={1000}
+                min={options.mileageMin}
+                max={options.mileageMax}
+                step={sliderStep}
                 label={(value) => `${value.toLocaleString()} mi`}
                 labelAlwaysOn
                 defaultValue={[
-                  filters.mileageMin ?? options.mileageMin - (options.mileageMin % 1000),
-                  filters.mileageMax ?? options.mileageMax + (options.mileageMax % 1000),
+                  filters.mileageMin ?? options.mileageMin,
+                  filters.mileageMax ?? options.mileageMax,
                 ]}
                 onChangeEnd={(mileage) => updateSliderFilter('mileage', mileage)}
               />
