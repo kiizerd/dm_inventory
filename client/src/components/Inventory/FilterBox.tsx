@@ -26,6 +26,7 @@ type FilterState = {
   year: string[];
   make: string[];
   model: string[];
+  bodyStyle: string[];
   fuel: string[];
   priceMin: number | null;
   priceMax: number | null;
@@ -38,6 +39,7 @@ type FilterOptions = {
   year: string[];
   make: string[];
   model: string[];
+  bodyStyle: string[];
   fuel: Array<{ value: string; label: string }>;
   priceMin: number;
   priceMax: number;
@@ -50,6 +52,7 @@ const defaultFilter: FilterState = {
   year: [],
   make: [],
   model: [],
+  bodyStyle: [],
   fuel: [],
   priceMin: null,
   priceMax: null,
@@ -74,6 +77,7 @@ export default function FilterBox({
       year: [],
       make: [],
       model: [],
+      bodyStyle: [],
       fuel: [],
       priceMin: -1,
       priceMax: 0,
@@ -94,6 +98,9 @@ export default function FilterBox({
       if (!result.year.includes(item.year)) result.year.push(item.year);
       if (!result.make.includes(item.make)) result.make.push(item.make);
       if (!result.model.includes(item.model)) result.model.push(item.model);
+      if (item.bodyStyle && !result.bodyStyle.includes(item.bodyStyle)) {
+        result.bodyStyle.push(item.bodyStyle);
+      }
       if (item.fuel) {
         const fuelLabel = item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1);
         if (!result.fuel.some((entry) => entry.value === item.fuel)) {
@@ -113,6 +120,7 @@ export default function FilterBox({
     result.year.sort().reverse();
     result.make.sort();
     result.model.sort();
+    result.bodyStyle.sort();
     result.fuel.sort((a, b) => a.label.localeCompare(b.label));
 
     return result;
@@ -120,11 +128,13 @@ export default function FilterBox({
 
   // compute filtered items whenever filters or items change
   useEffect(() => {
-    const { year, make, model, fuel, priceMin, priceMax, mileageMin, mileageMax, source } = filters;
+    const { year, make, model, bodyStyle, fuel, priceMin, priceMax, mileageMin, mileageMax, source } =
+      filters;
     const filtered = items.filter((v: Vehicle) => {
       if (year.length !== 0 && !year.includes(v.year)) return false;
       if (make.length !== 0 && !make.includes(v.make)) return false;
       if (model.length !== 0 && !model.includes(v.model)) return false;
+      if (bodyStyle.length !== 0 && !(v.bodyStyle && bodyStyle.includes(v.bodyStyle))) return false;
       if (fuel.length !== 0 && !(v.fuel && fuel.includes(v.fuel))) return false;
       if (source.length !== 0 && !source.includes(v.source)) return false;
 
@@ -231,6 +241,16 @@ export default function FilterBox({
             data={options.model}
             value={filters.model}
             onChange={(e) => setFilters((s) => ({ ...s, model: e }))}
+            {...multiSelectProps}
+          />
+
+          {/* Body Style */}
+          <MultiSelect
+            label="Body Style"
+            placeholder="Select body styles..."
+            data={options.bodyStyle}
+            value={filters.bodyStyle}
+            onChange={(e) => setFilters((s) => ({ ...s, bodyStyle: e }))}
             {...multiSelectProps}
           />
 
