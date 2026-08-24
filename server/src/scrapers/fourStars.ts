@@ -34,6 +34,12 @@ interface FourStarsDisplayCard {
 
 interface FourStarsResponse {
   DisplayCards: FourStarsDisplayCard[];
+  Paging?: {
+    PaginationDataModel?: {
+      PageNumber?: number;
+      TotalPages?: number;
+    };
+  };
 }
 
 type FourStarsUsedStore = 'ford' | 'dodge' | 'toyota' | 'nissan';
@@ -83,46 +89,76 @@ async function scrapeFourStarsFeed(
   console.log(`Scraping ${store[0]?.toUpperCase() + store.slice(1)}...`);
 
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText} for ${url}`);
-    const data = (await response.json()) as FourStarsResponse;
     const vehicles: Vehicle[] = [];
-    const displayCards = Array.isArray(data?.DisplayCards) ? data.DisplayCards : [];
-    displayCards.forEach((displayCard) => {
-      const item = displayCard?.VehicleCard;
-      if (!item) return;
+    const collectPage = (data: FourStarsResponse) => {
+      const displayCards = Array.isArray(data?.DisplayCards) ? data.DisplayCards : [];
+      displayCards.forEach((displayCard) => {
+        const item = displayCard?.VehicleCard;
+        if (!item) return;
 
-      const vehicleType = String(item.VehicleType ?? '').toLowerCase();
-      const vehicleCondition = String(item.VehicleCondition ?? '').toLowerCase();
-      if (vehicleType !== condition && vehicleCondition !== condition) return;
+        const vehicleType = String(item.VehicleType ?? '').toLowerCase();
+        const vehicleCondition = String(item.VehicleCondition ?? '').toLowerCase();
+        if (vehicleType !== condition && vehicleCondition !== condition) return;
 
-      // Extract price from nested HTML content
-      const priceContent =
-        item.WasabiVehiclePricingPanelViewModel?.PriceStakViewModel?.PriceStakTabsModel
-          ?.BuyContent;
-      const priceHtml = typeof priceContent === 'string' ? priceContent : '';
-      const price = extractPrice(priceHtml, condition);
-      const vin = String(item.VehicleVin ?? '');
-      const stock = String(item.VehicleStockNumber ?? '').trim() || vin.slice(-8);
+        // Extract price from nested HTML content
+        const priceContent =
+          item.WasabiVehiclePricingPanelViewModel?.PriceStakViewModel?.PriceStakTabsModel
+            ?.BuyContent;
+        const priceHtml = typeof priceContent === 'string' ? priceContent : '';
+        const price = extractPrice(priceHtml, condition);
+        const vin = String(item.VehicleVin ?? '');
+        const stock = String(item.VehicleStockNumber ?? '').trim() || vin.slice(-8);
 
-      vehicles.push({
-        year: String(item.VehicleYear),
-        make: item.VehicleMake,
-        model: item.VehicleModel,
-        trim: item.VehicleTrim,
-        price,
-        mileage: item.Mileage,
-        vin,
-        stk: stock,
-        link: item.VehicleDetailUrl,
-        image: item.VehicleImageModel?.VehiclePhotoSrc
-          ? urlBase + item.VehicleImageModel.VehiclePhotoSrc
-          : undefined,
-        fuel: normalizeFuelType(item.VehicleFuelType || item.VehicleEngine),
-        bodyStyle: normalizeBodyStyle(item.VehicleBodyStyle),
-        source: store,
+        vehicles.push({
+          year: String(item.VehicleYear),
+          make: item.VehicleMake,
+          model: item.VehicleModel,
+          trim: item.VehicleTrim,
+          price,
+          mileage: item.Mileage,
+          vin,
+          stk: stock,
+          link: item.VehicleDetailUrl,
+          image: item.VehicleImageModel?.VehiclePhotoSrc
+            ? urlBase + item.VehicleImageModel.VehiclePhotoSrc
+            : undefined,
+          fuel: normalizeFuelType(item.VehicleFuelType || item.VehicleEngine),
+          bodyStyle: normalizeBodyStyle(item.VehicleBodyStyle),
+          source: store,
+        });
       });
-    });
+    };
+
+    const fetchPage = async (pageUrl: string): Promise<FourStarsResponse> => {
+      const response = await fetch(pageUrl, { signal: AbortSignal.timeout(15000) });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText} for ${pageUrl}`);
+      }
+      return (await response.json()) as FourStarsResponse;
+    };
+
+    const firstData = await fetchPage(url);
+    collectPage(firstData);
+
+    const pagination = firstData.Paging?.PaginationDataModel;
+    const pageNumber = pagination?.PageNumber;
+    const reportedTotalPages = pagination?.TotalPages;
+    const firstPage = typeof pageNumber === 'number' && Number.isInteger(pageNumber) ? pageNumber : 1;
+    const totalPages =
+      typeof reportedTotalPages === 'number' && Number.isInteger(reportedTotalPages)
+        ? reportedTotalPages
+        : firstPage;
+
+    for (let page = firstPage + 1; page <= totalPages; page++) {
+      const pageUrl = new URL(url);
+      pageUrl.searchParams.set('pt', String(page));
+
+      try {
+        collectPage(await fetchPage(pageUrl.toString()));
+      } catch (pageError) {
+        console.error(`${store} page ${page} error:`, pageError);
+      }
+    }
 
     return vehicles;
   } catch (error) {
