@@ -149,7 +149,7 @@ export default function Inventory({
   return (
     <div className="min-h-screen w-full flex items-start justify-center">
       <header className="fixed inset-x-0 top-0 bg-gray-900/80 backdrop-blur z-40">
-        <div className="container mx-auto flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
+        <div className="container mx-auto flex flex-row items-center gap-3 px-4 py-3">
           <SearchBar
             search={search}
             onSearchChange={setSearch}
@@ -172,7 +172,7 @@ export default function Inventory({
         </div>
       </header>
 
-      <main className="flex flex-col md:flex-row w-screen mx-auto pt-16 md:pt-20">
+      <main className="flex flex-col md:flex-row w-screen mx-auto pt-20">
         <aside>
           <FilterBox
             key={endpoint}

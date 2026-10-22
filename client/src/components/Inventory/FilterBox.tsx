@@ -8,7 +8,7 @@ import {
   Text,
   type MultiSelectProps,
 } from '@mantine/core';
-import { IconChevronLeft } from '@tabler/icons-react';
+import { IconChevronLeft, IconFilter } from '@tabler/icons-react';
 import type { Vehicle } from '../../types';
 
 type Props = {
@@ -114,7 +114,7 @@ export default function FilterBox({
   onSortChange,
 }: Props) {
   const [filters, setFilters] = useState<FilterState>(defaultFilter);
-  const [open, setOpen] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(() => window.matchMedia('(min-width: 768px)').matches);
   const [sliderResetKey, setSliderResetKey] = useState(0);
   const priceSliderTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mileageSliderTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -238,24 +238,40 @@ export default function FilterBox({
       className={`relative pt-2 pl-4 transition-min-w duration-300 ease-in-out ${open ? 'min-w-2xs' : 'min-w-60'}`}
     >
       <div className="fixed z-5 filter-container min-w-3xs">
-        <ActionIcon
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          pos={'absolute'}
-          className={`top-2 transform transition duration-400 ease-in-out z-1
-            ${open ? 'right-2 translate-x-0' : 'right-0 -translate-x-56 md:-translate-x-52 rotate-180'} `}
-          title={open ? 'Hide filters' : 'Show filters'}
-        >
-          <IconChevronLeft stroke={2} />
-        </ActionIcon>
+        <div className="hidden md:block">
+          <ActionIcon
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            pos={'absolute'}
+            className={`top-2 transform transition duration-400 ease-in-out z-1
+              ${open ? 'right-2 translate-x-0' : 'right-0 -translate-x-52 rotate-180'} `}
+            title={open ? 'Hide filters' : 'Show filters'}
+          >
+            <IconChevronLeft stroke={2} />
+          </ActionIcon>
+        </div>
+        <div className="md:hidden fixed bottom-4 right-4 z-50">
+          <ActionIcon
+            size="xl"
+            radius="xl"
+            variant="filled"
+            color="indigo"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            title={open ? 'Hide filters' : 'Show filters'}
+          >
+            <IconFilter stroke={2} />
+          </ActionIcon>
+        </div>
 
         <div
-          className={`filter-body p-4 pt-2 space-y-2 md:space-y-4 bg-gray-900/80 border border-gray-700 rounded
+          className={`filter-body p-4 pt-2 space-y-2 md:space-y-4 bg-gray-900/95 border border-gray-700 rounded
+            max-h-[calc(100dvh-6rem)] overflow-y-auto md:max-h-none md:overflow-visible md:bg-gray-900/80
             transform transition duration-300 ease-in-out
             ${
               open
                 ? 'translate-x-0 opacity-100 scale-none'
-                : '-translate-x-full opacity-0 -scale-x-3'
+                : '-translate-x-full opacity-0 -scale-x-3 invisible pointer-events-none'
             }`}
         >
           <div className="flex items-center justify-start gap-4">
